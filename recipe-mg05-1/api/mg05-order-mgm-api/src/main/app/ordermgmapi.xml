@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+    <http:listener-config name="ordermgmapi-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <apikit:config name="ordermgmapi-config" raml="ordermgmapi.raml" consoleEnabled="true" consolePath="console" doc:name="Router"/>
+    <flow name="ordermgmapi-main">
+        <http:listener config-ref="ordermgmapi-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="ordermgmapi-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="ordermgmapi-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="get:/orders:ordermgmapi-config">
+        <set-payload value="{&quot;Orders&quot;: [&#xA;  {&quot;order&quot;:{&#xA;  &quot;id&quot;:&quot;ORD000189828&quot;,&#xA;  &quot;products&quot;: [&#xA;      {&quot;id&quot;:&quot;PROD01271&quot;,&quot;name&quot;:&quot;prodA&quot;},&#xA;      {&quot;id&quot;:&quot;PROD09823&quot;,&quot;name&quot;:&quot;prodB&quot;},&#xA;      {&quot;id&quot;:&quot;PROD01128&quot;,&quot;name&quot;:&quot;prodC&quot;}&#xA;    ],&#xA;  &quot;created&quot;:&quot;08-06-2016 12:54:27 PM BST&quot;,&#xA;  &quot;ownerid&quot;:&quot;CUST0001&quot;,&#xA;   &quot;shippingaddress&quot;:{&#xA;    &quot;doornumber&quot;:&quot;78&quot;,&#xA;    &quot;building name&quot;:&quot;AUGUSTUS CLOSE&quot;,&#xA;    &quot;street&quot;:&quot;HIGH STREET&quot;,&#xA;    &quot;city&quot;:&quot;LONDON&quot;,&#xA;    &quot;postcode&quot;:&quot;SK18 2SA&quot;&#xA;    },&#xA;  &quot;customer&quot;:{&#xA;    &quot;id&quot;:&quot;CUST0001&quot;,&#xA;    &quot;name&quot;:&quot;JOHNSMITH&quot;,&#xA;    &quot;phone&quot;:&quot;0222222222&quot;,&#xA;    &quot;email&quot;:&quot;jsmith@testmail.com&quot;&#xA;    }&#xA;}},&#xA;{&quot;order&quot;:{&#xA;  &quot;id&quot;:&quot;ORD0001123687&quot;,&#xA;  &quot;products&quot;: [&#xA;      {&quot;id&quot;:&quot;PROD01271&quot;,&quot;name&quot;:&quot;prodX&quot;},&#xA;      {&quot;id&quot;:&quot;PROD02367&quot;,&quot;name&quot;:&quot;prodY&quot;},&#xA;      {&quot;id&quot;:&quot;PROD04378&quot;,&quot;name&quot;:&quot;prodZ&quot;}&#xA;    ],&#xA;  &quot;created&quot;:&quot;08-06-2016 12:54:27 PM BST&quot;,&#xA;  &quot;ownerid&quot;:&quot;CUST0012367&quot;,&#xA;   &quot;shippingaddress&quot;:{&#xA;    &quot;doornumber&quot;:&quot;1&quot;,&#xA;    &quot;building name&quot;:&quot;CTMS LOCK&quot;,&#xA;    &quot;street&quot;:&quot;St.ANN STREET&quot;,&#xA;    &quot;city&quot;:&quot;LONDON&quot;,&#xA;    &quot;postcode&quot;:&quot;SK18 2SA&quot;&#xA;    },&#xA;  &quot;customer&quot;:{&#xA;    &quot;id&quot;:&quot;CUST0012367&quot;,&#xA;    &quot;name&quot;:&quot;STEVEHARVEY&quot;,&#xA;    &quot;phone&quot;:&quot;0111111111&quot;,&#xA;    &quot;email&quot;:&quot;sharvey@testmail.com&quot;&#xA;    }&#xA;}&#xA;}&#xA;]}" doc:name="Set Payload"/>
+    </flow>
+    <apikit:mapping-exception-strategy name="ordermgmapi-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>

@@ -1,0 +1,33 @@
+<policy xmlns="http://www.mulesoft.org/schema/mule/policy"
+        id="{{policyId}}"
+        policyName="Regex Filter"    
+        xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:api-platform-gw="http://www.mulesoft.org/schema/mule/api-platform-gw"
+        xsi:schemaLocation="http://www.mulesoft.org/schema/mule/policy http://www.mulesoft.org/schema/mule/policy/current/mule-policy.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/api-platform-gw http://www.mulesoft.org/schema/mule/api-platform-gw/current/mule-api-platform-gw.xsd">
+ 
+  <!-- This element defines the details of the filter -->
+  <!--   implemented in the "before" section. -->
+  <mule:expression-filter xmlns:mule="http://www.mulesoft.org/schema/mule/core" expression="#[regex('{{regexFilter}}',message.inboundProperties['http.query.params']['{{queryParam}}'] )]" name="Expression"/>
+  <!-- This section builds response messages when the policy fails. -->
+  <mule:processor-chain xmlns:mule="http://www.mulesoft.org/schema/mule/core" name="policyViolation">
+    <!-- Set the HTTP status code to 403: -->
+    <mule:set-property propertyName="http.status" value="403"/>   
+    <mule:set-property propertyName="Content-Type" value="application/json"/>
+    <!-- Set the payload to the description of the violation: -->
+    <mule:set-payload value="You shall not pass!"/>
+  </mule:processor-chain>
+ 
+   <!-- This executes right after the inbound endpoint of the application -->
+  <before>
+    <mule:message-filter xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+      onUnaccepted="policyViolation">
+      <mule:filter ref="Expression"/>
+    </mule:message-filter>
+  </before>
+ 
+  <!-- Pointcut defines where a policy implements. -->
+   <pointcut>
+       <api-platform-gw:api-pointcut apiName="{{ apiName }}" apiVersion="{{ apiVersionName }}"/>
+   </pointcut>
+</policy>
