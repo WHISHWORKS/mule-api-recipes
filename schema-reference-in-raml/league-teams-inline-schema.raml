@@ -1,0 +1,81 @@
+#%RAML 0.8
+---
+title: La Liga
+version: 0.1
+baseUri: http://localhost:8080/api
+documentation:
+  - title: Getting Started
+    content: |
+      This sample API has been created as part of your APIkit project. It is located in src/main/api. Feel free to poke around.
+/teams:
+  displayName: Teams
+  #description: |
+  #  A collection of teams that are participating in La Liga.
+  get:
+    description: Obtain information from a collection of teams simultaneously
+    queryParameters:
+      city:
+        description: |
+          Filter the list of teams by home city.
+        type: string
+        required: false
+        example: Barcelona
+    responses:
+      200:
+        body:
+          application/json:
+            schema: |
+              {
+                  "type": "object",
+                  "$schema": "http://json-schema.org/draft-03/schema",
+                  "items": {
+                      "description": "The team is the basic unit for keeping track of a roster of players. With the Team APIs, you can obtain team-related information, like the team name, stats, points, and more.",
+                      "name": "Team",
+                      "properties": {
+                          "homeCity": {
+                              "description": "Name of the city to which this team belongs",
+                              "type": "string",
+                              "required": true
+                          },
+                          "id": {
+                              "description": "A three-letter code that identifies the team id",
+                              "maxLength": 3,
+                              "minLength": 3,
+                              "type": "string",
+                              "required": true
+                          },
+                          "name": {
+                              "description": "Name of the team",
+                              "type": "string",
+                              "required": true
+                          },
+                          "stadium": {
+                              "description": "Name of the stadium",
+                              "type": "string"
+                          }
+                      },
+                      "type": "object"
+                  },
+                  "name": "Teams",
+                  "required": true,
+                  "type": "array"
+              }         
+            example: |
+              [{
+                "name": "Athletic Bilbao",
+                "id": "ATH",
+                "homeCity": "Bilbao",
+                "stadium": "San Mames"
+              },
+              {
+                "name": "Atletico Madrid",
+                "id": "ATL",
+                "homeCity": "Madrid",
+                "stadium": "Vicente Calderon"
+              },
+              {
+                "name": "Barcelona",
+                "id": "BAR",
+                "homeCity": "Barcelona",
+                "stadium": "Camp Nou"
+              }]
