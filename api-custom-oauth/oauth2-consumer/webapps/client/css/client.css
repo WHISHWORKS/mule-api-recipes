@@ -1,0 +1,43 @@
+.title
+{
+    text-align: center;
+}
+
+label
+{
+    width: 4em;
+    float: left;
+    text-align: right;
+    margin-right: 1.5em;
+    display: block
+}
+.submit button
+{
+    margin-left: 8em;
+}
+
+.content
+{
+    float: left;
+    margin-right: 2em;
+}
+.content p.signin
+{
+    width: 2em;
+    margin-left:3em;
+}
+.clear
+{
+    clear: both;
+}
+
+a:link, a:visited, a:hover, a:active
+{
+    color: #FFFFFF;
+}
+
+body
+{
+    background-color: #000055;
+    color: #FFFFFF;
+}

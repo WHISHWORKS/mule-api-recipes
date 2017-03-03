@@ -1,0 +1,48 @@
+#%RAML 0.8
+title: business-events
+version: 1.0
+baseUri: https://localhost:8081/api
+/events:
+  displayName: Events
+  description: | 
+    Working with Events
+  post:
+    description: To Test a events
+    body: 
+      application/json:
+        example: |
+          {
+            "id":"2345",
+            "order_status": "FAILED",
+            "operator": "Savings",
+            "price": "25.25"
+          }
+    responses: 
+      201: 
+        description: Created
+        body: 
+          application/json:
+            example: |
+              {
+                "id":"2345",
+                "order_status": "FAILED",
+                "operator": "Savings",
+                "price": "25.25"
+              }
+  /{id}:
+    displayName: business Id
+    uriParameters:
+      id:
+        type: string
+        example: 1234
+        description: Represents the business unique id in form of UUID          
+    delete: 
+      responses:
+        200:
+          body:
+            application/json: 
+              example: |
+                {
+                  "message": "Deleted Successfully"
+                }        
+          

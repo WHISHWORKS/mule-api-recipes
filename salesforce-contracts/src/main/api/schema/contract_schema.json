@@ -1,0 +1,29 @@
+{
+"properties": {
+        "Account": {
+            "description": "AccountId to which order is to be assigned",
+            "type": "string",
+			"required":true
+           },
+"Status": {
+            "description": "Status of order",
+            "type": "string",
+			"required":true
+           },
+"StartDate": {
+            "description": "EffectiveDate of order",
+            "type": "string",
+			"required":true
+           },
+"ContractTerm": {
+            "description": "BillingCity for order",
+            "type": "string",
+			"required":true
+           },
+"CustomerSigned": {
+            "description": "BillingCity for order",
+            "type": "string"
+           }		   
+ 	}
+	
+}

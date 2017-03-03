@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:ws="http://www.mulesoft.org/schema/mule/ws" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/ws http://www.mulesoft.org/schema/mule/ws/current/mule-ws.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <http:listener-config name="api-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration" />
+    <apikit:config name="api-config" raml="api.raml" consoleEnabled="false" doc:name="Router" />
+    <ws:consumer-config name="Web_Service_Consumer" service="EmployeeService" port="EmployeePort" serviceAddress="http://localhost:8081/employee/getEmployeeDetails" wsdlLocation="Employee.wsdl" doc:name="Web Service Consumer"/>
+    <flow name="api-main">
+        <http:listener config-ref="api-httpListenerConfig" path="/api/*" doc:name="HTTP" />
+        <apikit:router config-ref="api-config" doc:name="APIkit Router" />
+        <exception-strategy ref="api-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy" />
+    </flow>
+    <flow name="api-console">
+        <http:listener config-ref="api-httpListenerConfig" path="/console/*" doc:name="HTTP" />
+        <apikit:console config-ref="api-config" doc:name="APIkit Console" />
+    </flow>
+
+    <flow name="get:/employees/{empId}:api-config">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace ns0 http://www.example.org/schema/Employee
+---
+{
+	ns0#GetEmployeeDetailsRequest: {
+		ns0#id: flowVars.empId
+	}
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <ws:consumer config-ref="Web_Service_Consumer" doc:name="Web Service Consumer" operation="GetEmployeeDetails"/>
+        <dw:transform-message metadata:id="f1a1a51d-1217-4747-8282-49db44fcb278" doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/xml
+%namespace ns0 http://www.example.org/schema/Employee
+---
+{
+	ns0#GetEmployeeDetailsResponse: {
+		Id: payload.ns0#GetEmployeeDetailsResponse.Id,
+		Lastname: payload.ns0#GetEmployeeDetailsResponse.Lastname,
+		Firstname: payload.ns0#GetEmployeeDetailsResponse.Firstname,
+		gender: payload.ns0#GetEmployeeDetailsResponse.gender,
+		dateOfBirth: payload.ns0#GetEmployeeDetailsResponse.dateOfBirth,
+		address: {
+			addressLine1: payload.ns0#GetEmployeeDetailsResponse.address.addressLine1,
+			addressLine2: payload.ns0#GetEmployeeDetailsResponse.address.addressLine2,
+			addressLine3: payload.ns0#GetEmployeeDetailsResponse.address.addressLine3,
+			town: payload.ns0#GetEmployeeDetailsResponse.address.town,
+			state: payload.ns0#GetEmployeeDetailsResponse.address.state,
+			country: payload.ns0#GetEmployeeDetailsResponse.address.country
+		}
+	}
+}]]></dw:set-payload>
+        </dw:transform-message>
+
+        <set-payload value="{&#xA;&quot;empId&quot;:&quot;4321&quot;,&#xA;&quot;firstname&quot;:&quot;xxx&quot;,&#xA;&quot;lastname&quot;:&quot;xxx&quot;,&#xA;&quot;gender&quot;:&quot;xxx&quot;,&#xA;&quot;dateOfBirth&quot;:&quot;ddd&quot;,&#xA;&quot;address&quot;:{&#xA;  &quot;addressLine1&quot;:&quot;xxx&quot;,&#xA;  &quot;addressLine2&quot;:&quot;xxx&quot;,&#xA;  &quot;addressLine3&quot;:&quot;xxx&quot;,&#xA;  &quot;town&quot;:&quot;xxx&quot;,&#xA;  &quot;state&quot;:&quot;xxx&quot;,&#xA;  &quot;country&quot;:&quot;xxx&quot;&#xA;}&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <apikit:mapping-exception-strategy name="api-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>

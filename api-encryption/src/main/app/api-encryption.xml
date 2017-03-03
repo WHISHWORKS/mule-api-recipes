@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:encryption="http://www.mulesoft.org/schema/mule/encryption" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/encryption http://www.mulesoft.org/schema/mule/encryption/current/mule-encryption.xsd">
+    <encryption:config name="Encryption" doc:name="Encryption">
+        <encryption:jce-encrypter-config key="kishankrsoni2512"/>
+    </encryption:config>
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <flow name="api-encryptionFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/jceEncryptor" doc:name="HTTP"/>
+        <set-payload value="kishan" doc:name="Input"/>
+        <encryption:encrypt config-ref="Encryption" using="JCE_ENCRYPTER" doc:name="JCE Encrypter">
+            <encryption:jce-encrypter key="kishankrsoni2512"/>
+        </encryption:encrypt>
+        <file:outbound-endpoint path="E:\backup\test" outputPattern="sample.txt" responseTimeout="10000" doc:name="Writing into Text File"/>
+        <logger level="INFO" doc:name="Encrypted data Value" message="#[payload]"/>
+    </flow>
+        <flow name="DecryptionFlow">
+        <file:inbound-endpoint path="E:\backup\test" responseTimeout="10000" doc:name="Read data from text file">
+            <file:filename-regex-filter pattern="sample.txt" caseSensitive="false"/>
+        </file:inbound-endpoint>
+        <file:file-to-string-transformer doc:name="File to String"/>
+        <encryption:decrypt config-ref="Encryption" doc:name="Decryption">
+            <encryption:jce-encrypter key="kishankrsoni2512"/>
+        </encryption:decrypt>
+        <set-payload value="#[payload] is a good boy" doc:name="changes in data"/>
+        <file:outbound-endpoint path="E:\backup\original" outputPattern="final.txt" responseTimeout="10000" doc:name="Write into file"/>
+    </flow>
+</mule>

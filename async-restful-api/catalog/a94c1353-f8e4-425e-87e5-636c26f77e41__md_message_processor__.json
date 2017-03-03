@@ -1,0 +1,18 @@
+{
+    "inputMessageMetadata": {
+        "flowVariables": {
+            "uniqueId": {
+                "connectorName": "#_custom_mule_metadata_type_#",
+                "typeId": "id-string"
+            }
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "async-json"
+        }
+    },
+    "id": "a94c1353-f8e4-425e-87e5-636c26f77e41",
+    "version": "5.2.0.0"
+}

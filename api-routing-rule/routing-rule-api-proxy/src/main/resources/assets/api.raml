@@ -1,0 +1,17 @@
+#%RAML 0.8
+title: routing-rule-api
+#version: 1.0
+baseUri: http://routing-rule-app.eu.cloudhub.io/api/
+/loan_approval:
+  displayName: Loan Approval Flow
+  post:
+    description: Trigger different flow based on loan amount
+    body:
+      application/json:
+    responses:
+      201:
+        body:
+          application/json:
+      400:
+        body:
+          application/json:

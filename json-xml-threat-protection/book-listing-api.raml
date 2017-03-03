@@ -1,0 +1,28 @@
+#%RAML 0.8
+title: BookListingUxAPI
+version: 1.0
+baseUri: https://BookListingUxAPI
+
+/AddBooks:
+  post:
+    body: 
+      application/json:
+        example: |
+          {
+            "id": 24,
+            "title": "Matilda",
+            "author": "Marcella Hazen",
+            "price": "$20.99"
+          }
+    responses: 
+      201:
+        body: 
+          application/json:
+            example: |
+              {
+              "id": 24,
+              "title": "Matilda",
+              "author": "Marcella Hazen",
+              "price": "$20.99"
+              }
+      

@@ -1,0 +1,56 @@
+#%RAML 0.8
+title: Asynchronous-Restful-api
+version: 1.0
+baseUri: https://localhost:8081/api 
+/accounts:
+  post:
+    description: send message to JMS queue
+    body:
+        application/json:
+          example: | 
+             {
+              "name": "API Account",
+              "Type": "Savings",
+              "Address": "My Address"
+             }
+    responses:
+      202:
+        body:
+          application/json:        
+            example: |
+              {
+                status: ok
+              }
+  /{id}:
+    displayName: Message Id
+    uriParameters:
+      id:
+        type: string
+        example: 1234
+        description: Represents the message unique id in form of UUID
+    get:
+      description:  get contract details with given Id
+      responses:
+        200: 
+          body:
+            application/json:
+              example: |
+                {
+                  "name": "API Account",
+                  "Type": "Savings",
+                  "Address": "My Address"
+                }
+        400:
+          body:
+            application/json:
+              example: |
+                {
+                  "message": "Bad message"
+                }
+        404:
+          body:
+            application/json:
+              example: |
+                {
+                  "message": "Resource not found"
+                }

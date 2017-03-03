@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "Web_Service_Consumer",
+            "typeId": "GetEmployeeDetailsResponse"
+        }
+    },
+    "id": "f1a1a51d-1217-4747-8282-49db44fcb278",
+    "version": "5.2.0.0"
+}

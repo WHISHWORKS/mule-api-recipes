@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:listener-config name="api-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration" />
+    <apikit:config name="api-config" raml="api.raml" consoleEnabled="false" doc:name="Router" />
+    <sfdc:config name="Salesforce__Basic_Authentication" username="${sfdc.user}" password="${sfdc.password}" securityToken="${sfdc.token}" doc:name="Salesforce: Basic Authentication" />
+    <flow name="api-main">
+        <http:listener config-ref="api-httpListenerConfig" path="/api/*" doc:name="HTTP" />
+        <apikit:router config-ref="api-config" doc:name="APIkit Router" />
+        <exception-strategy ref="api-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy" />
+    </flow>
+    <flow name="api-console">
+        <http:listener config-ref="api-httpListenerConfig" path="/console/*" doc:name="HTTP" />
+        <apikit:console config-ref="api-config" doc:name="APIkit Console" />
+    </flow>
+    <flow name="get:/contracts/{id}:api-config">
+        <set-payload value="#[message.inboundProperties.'http.uri.params'.id]" doc:name="Set Payload" />
+        <logger message="before salesforce*******#[payload]" level="INFO" doc:name="Logger" />
+        <sfdc:query config-ref="Salesforce__Basic_Authentication" query="dsql:SELECT Id FROM Contract where id='#[payload]'" doc:name="Salesforce" />
+        <dw:transform-message metadata:id="01a71669-3607-4011-9065-5270ae815612" doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map ((payload01 , indexOfPayload01) -> {
+	id: payload01.Id
+})]]></dw:set-payload>
+        </dw:transform-message>
+        <choice doc:name="Choice">
+            <when expression="#[payload.size() &gt; 0]">
+                <set-payload value="#[message.inboundProperties.'http.uri.params'.id]" doc:name="Set Payload" />
+                <logger message="***********#[message.inboundProperties.'http.uri.params'.id]" level="INFO" doc:name="Logger" />
+                <sfdc:query config-ref="Salesforce__Basic_Authentication" query="SELECT AccountId, StartDate, Status FROM Contract where Id = '#[message.inboundProperties.'http.uri.params'.id]' " doc:name="Salesforce" />
+                <logger message="after salesforce************ #[payload]" level="INFO" doc:name="Logger" />
+                <json:object-to-json-transformer doc:name="Object to JSON" />
+                <logger message="json converted******#[payload]" level="INFO" doc:name="Logger" />
+            </when>
+            <otherwise>
+                <logger message="Id not Exist" level="INFO" doc:name="Logger" />
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="post:/contracts:api-config" tracking:enable-default-events="true">
+        <json:json-to-object-transformer returnClass="Java.util.HashMap" doc:name="JSON to Object"/>
+        <tracking:custom-event event-name="contracts" doc:name="Custom Business Event">
+            <tracking:meta-data key="Account" value="#[groovy:payload.Account]"/>
+            <tracking:meta-data key="StartDate" value="#[groovy:payload.StartDate]"/>
+            <tracking:meta-data key="ContractTerm" value="#[groovy:payload.ContractTerm]"/>
+        </tracking:custom-event>
+        <set-payload value="#[payload]" doc:name="Set Payload" />
+        <logger message="after setpayload #[payload]" level="INFO" doc:name="Logger" />
+        <dw:transform-message metadata:id="de879bdb-7396-47da-a384-1984fff38fcb" doc:name="Transform Message">
+            <dw:input-payload mimeType="application/json" />
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	AccountId: payload.Account,
+	StartDate: payload.StartDate as :date,
+	ContractTerm: payload.ContractTerm,
+	Status: payload.Status
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="after transform #[payload]" level="INFO" doc:name="Logger" />
+        <sfdc:create-single config-ref="Salesforce__Basic_Authentication" type="Contract" doc:name="Salesforce" />
+        <logger message="After Salesforce connector #[payload]" level="INFO" doc:name="Logger" />
+        <set-payload value=" {status: contract created}" doc:name="Set Payload" />
+        <tracking:transaction id="contracts-events"/>
+    </flow>
+    <flow name="delete:/contracts/{id}:api-config">
+        <set-payload value="#[message.inboundProperties.'http.uri.params'.id]" doc:name="Set Payload" />
+        <logger message="#[payload]" level="INFO" doc:name="Logger" />
+        <sfdc:query config-ref="Salesforce__Basic_Authentication" query="dsql:SELECT Id FROM Contract WHERE id = '#[payload]'" doc:name="Salesforce" />
+        <dw:transform-message metadata:id="a1c44e8c-59f2-4c17-bde3-46fe48877986" doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map ((payload01 , indexOfPayload01) -> {
+	id: payload01.Id
+})]]></dw:set-payload>
+        </dw:transform-message>
+        <choice doc:name="Choice">
+            <when expression="#[payload.size() &gt; 0]">
+                <set-payload value="#[message.inboundProperties.'http.uri.params'.id]" doc:name="Set Payload" />
+                <logger message="before salesforce*************** #[payload]" level="INFO" doc:name="Logger" />
+                <dw:transform-message metadata:id="1befee36-271c-4dd0-8572-1aa991c42e40" doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+[
+	flowVars.id
+]]]></dw:set-payload>
+                </dw:transform-message>
+                <sfdc:delete config-ref="Salesforce__Basic_Authentication" doc:name="Salesforce">
+                    <sfdc:ids ref="#[payload]" />
+                </sfdc:delete>
+                <logger level="INFO" doc:name="Logger" />
+                <set-payload value="&quot;Deleted ID: &quot; + #[message.inboundProperties.'http.uri.params'.id]" doc:name="Set Payload" />
+            </when>
+            <otherwise>
+                <logger message="Id not exist" level="INFO" doc:name="Logger" />
+                <set-payload value="ID not Exist" doc:name="Set Payload" />
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="put:/contracts/{id}:api-config">
+        <set-variable variableName="Id" value="#[message.inboundProperties.'http.uri.params'.id]" doc:name="Variable" />
+        <set-variable variableName="input" value="#[payload]" doc:name="payload set var" />
+        <sfdc:query config-ref="Salesforce__Basic_Authentication" query="dsql:SELECT Id FROM Contract where Id='#[flowVars.Id]'" doc:name="Salesforce" />
+        <dw:transform-message metadata:id="98a66ebb-42f4-4975-87a0-1169918ed929" doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map ((payload01 , indexOfPayload01) -> {
+	Id: payload01.Id
+})]]></dw:set-payload>
+        </dw:transform-message>
+        <choice doc:name="Choice">
+            <when expression="#[payload.size() &gt; 0]">
+                <set-payload value="#[flowVars.input]" doc:name="Set Payload" />
+                <dw:transform-message metadata:id="a5af0b6c-507b-4e86-922f-a4b15b0a20b1" doc:name="Transform Message">
+                    <dw:input-payload mimeType="application/json" />
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	Id: payload.Id,
+	StartDate: payload.StartDate as :date,
+	ContractTerm: payload.ContractTerm
+}]]></dw:set-payload>
+                </dw:transform-message>
+                <sfdc:update-single config-ref="Salesforce__Basic_Authentication" type="Contract" doc:name="Salesforce" />
+                <logger message="after update**************#[payload]" level="INFO" doc:name="Logger" />
+                <sfdc:query config-ref="Salesforce__Basic_Authentication" query="dsql:SELECT ContractNumber,ContractTerm,Id,StartDate FROM Contract" doc:name="Salesforce" />
+                <json:object-to-json-transformer doc:name="Object to JSON" />
+                <logger message="json after update****************#[payload]" level="INFO" doc:name="Logger" />
+            </when>
+            <otherwise>
+                <set-payload value="{Message: Contract Id doesnot exist}" doc:name="Set Payload" />
+                <logger message="#[payload]" level="INFO" doc:name="Logger" />
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="post:/contracts:application/json:api-config">
+        <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+        <set-payload value="{&#xD;&#xA;&#x9;&quot;id&quot;:&quot;800280000006Oc3AAE&quot;,&#xD;&#xA;&#x9;&quot;Account&quot;: &quot;Michelle Ruiz&quot;,&#xD;&#xA;&#x9;&quot;ActivatedBy&quot;: &quot;&quot;,&#xD;&#xA;&#x9;&quot;ActivatedDate&quot;: &quot;20/12/2015&quot;,&#xD;&#xA;&#x9;&quot;BillingAddress&quot;: &quot;&quot;,&#xD;&#xA;&#x9;&quot;CompanySigned&quot;: &quot;&quot;,&#xD;&#xA;&#x9;&quot;CompanySignedDate&quot;: &quot;Eastlawn 42&quot;,&#xD;&#xA;&#x9;&quot;EndDate&quot;: &quot;20/12/2015&quot;,&#xD;&#xA;&#x9;&quot;Name&quot;: &quot;California&quot;,&#xD;&#xA;&#x9;&quot;ContractNumber&quot;: 103,&#xD;&#xA;&#x9;&quot;Owner&quot;: &quot;United States&quot;,&#xD;&#xA;&#x9;&quot;StartDate&quot;: &quot;20/12/2015&quot;,&#xD;&#xA;&#x9;&quot;ContractTerm&quot;: &quot;Houston&quot;,&#xD;&#xA;&#x9;&quot;CreatedBy&quot;: &quot;Texas&quot;,&#xD;&#xA;&#x9;&quot;CustomerSigned&quot;: &quot;77045&quot;,&#xD;&#xA;&#x9;&quot;CustomerSignedTitle&quot;: &quot;United States&quot;,&#xD;&#xA;&#x9;&quot;Description&quot;: &quot;Houston&quot;,&#xD;&#xA;&#x9;&quot;LastModifiedBy&quot;: &quot;Texas&quot;,&#xD;&#xA;&#x9;&quot;Status&quot;: &quot;Draft&quot;,&#xD;&#xA;&#x9;&quot;ShippingAddress&quot;: &quot;United States&quot;&#xD;&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <apikit:mapping-exception-strategy name="api-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ Status: &quot;False&quot;, &quot;message&quot;: &quot;Bad request&quot; + #[exception.cause.message] }" doc:name="Set Payload" />
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>

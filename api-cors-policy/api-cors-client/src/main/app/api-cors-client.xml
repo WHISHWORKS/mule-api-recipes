@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <flow name="api-cors-clientFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/" doc:name="HTTP"/>
+        <set-payload value="&lt;!DOCTYPE html&gt; &lt;html&gt; &lt;head&gt; &lt;title&gt;Demo&lt;/title&gt; &lt;/head&gt; &lt;body&gt; Calling an API &lt;p id=&quot;demo&quot;&gt;&lt;/p&gt;  &lt;script src=&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt; &lt;script&gt; console.log(&quot;inside script&quot;);   function UserAction() {   var data_json;   $.ajax({               headers: { &quot;Accept&quot;: &quot;application/json&quot;},             type: 'GET',             url: 'http://salesforce-order.eu.cloudhub.io/order/80128000000y1O1',             crossDomain: true,             success: function(data, textStatus, request){     data_json = JSON.stringify(data);                 console.log(&quot;data: &quot; + data_json);     document.getElementById(&quot;demo&quot;).innerHTML = data_json;             }       });   console.log(&quot;outside: &quot; + data_json);  } UserAction();  &lt;/script&gt;  &lt;/body&gt; &lt;/html&gt;" doc:name="Set Payload"/>
+    </flow>
+</mule>

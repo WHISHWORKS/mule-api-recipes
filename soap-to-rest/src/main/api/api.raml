@@ -1,0 +1,38 @@
+#%RAML 0.8
+title: Employee
+version: 1.0
+
+baseUri: http://www.company.com/api/{version}
+/employees:
+  displayName: Groups
+  /{empId}:
+    displayName: ContactHistory
+    get:
+      description: get the employee details using the employee id as input
+      responses: 
+        200:
+          body: 
+            application/json:
+              example: |
+                {
+                "empId":"4321",
+                "firstname":"xxx",
+                "lastname":"xxx",
+                "gender":"xxx",
+                "dateOfBirth":"ddd",
+                "address":{
+                  "addressLine1":"xxx",
+                  "addressLine2":"xxx",
+                  "addressLine3":"xxx",
+                  "town":"xxx",
+                  "state":"xxx",
+                  "country":"xxx"
+                }
+                }
+        400:
+          body: 
+            application/json:
+              example: |
+                {
+                "error":"No employee associated with the specified empId"
+                }

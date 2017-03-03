@@ -1,0 +1,22 @@
+#%RAML 0.8
+title: CreditCard Details
+version: 1.0
+/details:
+  displayName: Create Order
+  post:
+    description: Create Order in SF
+    body:
+      application/json:
+        example: !include example/input.json
+    responses:
+      201:
+        body:
+          application/json:
+            example: | 
+              {"message" : "order created" }
+              
+      400:
+        body:
+          application/json:
+            example: |
+              {"message" : "something went wrong"}

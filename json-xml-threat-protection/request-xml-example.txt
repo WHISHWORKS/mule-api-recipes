@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<books>
+  <genre>
+    <fiction>
+      <classic>
+        <id>24</id>
+        <title>Pilgrim&#x27;s Progress</title>
+        <author>John Bunyan</author>
+        <price>$19.21</price>
+      </classic>
+      <mystery>
+        <Crime>
+          <id>24</id>
+          <title>The Cartel</title>
+          <author>Don Winslow</author>
+          <price>$16.45</price>
+        </Crime>
+      </mystery>
+    </fiction>
+    <non fiction>
+      <Art>
+        <id>24</id>
+        <title>Ways of Seeing</title>
+        <author>John Berger</author>
+        <price>$20.99</price>
+      </Art>
+      <Cooking>
+        <Italian>
+          <id>24</id>
+          <title>Essentials of Classic Italian Cooking</title>
+          <author>Rohald Dahl</author>
+          <price>$5.21</price>
+        </Italian>
+        <Mexican>
+          <id>24</id>
+          <title>Pati&#x27;sMexicanTable</title>
+          <author>PatiJinich</author>
+          <price>$8.46</price>
+        </Mexican>
+      </Cooking>
+    </non fiction>
+  </genre>
+</books>

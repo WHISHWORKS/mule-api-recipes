@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:mule-ss="http://www.mulesoft.org/schema/mule/spring-security" 
+xmlns:ss="http://www.springframework.org/schema/security" 
+xmlns:http="http://www.mulesoft.org/schema/mule/http" 
+xmlns:oauth2-provider="http://www.mulesoft.org/schema/mule/oauth2-provider"
+ xmlns="http://www.mulesoft.org/schema/mule/core" 
+ xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/spring-security http://www.mulesoft.org/schema/mule/spring-security/current/mule-spring-security.xsd
+http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/oauth2-provider http://www.mulesoft.org/schema/mule/oauth2-provider/current/mule-oauth2-provider.xsd">
+
+	 <spring:beans>
+        <ss:authentication-manager alias="resourceOwnerAuthenticationManager">  
+            <ss:authentication-provider> 
+                <ss:user-service id="resourceOwnerUserService"> 
+                    <ss:user name="john" password="doe" authorities="READ_PROFILES"/> 
+                </ss:user-service> 
+            </ss:authentication-provider> 
+        </ss:authentication-manager>
+	</spring:beans>
+	
+	<mule-ss:security-manager name="muleSecurityManager" doc:name="Spring Security Provider">
+   	     <mule-ss:delegate-security-provider name="resourceOwnerSecurityProvider" 
+   	     delegate-ref="resourceOwnerAuthenticationManager"/>
+  	  </mule-ss:security-manager>
+	
+
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="${http.port}" doc:name="HTTP Listener Configuration"/>
+    <oauth2-provider:config 
+    	name="OAuth_provider_module"
+		providerName="OAuth Provider"
+        
+        listenerConfig-ref="HTTP_Listener_Configuration"
+        authorizationEndpointPath="oauthprovider/api/authorize"
+        accessTokenEndpointPath="oauthprovider/api/token"
+        resourceOwnerSecurityProvider-ref="resourceOwnerSecurityProvider"
+        scopes="READ_RESOURCE" doc:name="OAuth provider module" authorizationTtlSeconds="60" tokenTtlSeconds="15">
+
+ 		<oauth2-provider:clients>
+         <oauth2-provider:client clientId="${client-id}" secret="${client-secret}"
+           type="CONFIDENTIAL" clientName="OAuth Consumer Client" 
+           description="Test client">
+                    <oauth2-provider:redirect-uris>
+                        <oauth2-provider:redirect-uri>http://localhost*</oauth2-provider:redirect-uri>
+                    </oauth2-provider:redirect-uris>
+                    <oauth2-provider:authorized-grant-types>
+                        <oauth2-provider:authorized-grant-type>AUTHORIZATION_CODE</oauth2-provider:authorized-grant-type>
+                    </oauth2-provider:authorized-grant-types>
+                    <oauth2-provider:scopes>
+                        <oauth2-provider:scope>READ_RESOURCE</oauth2-provider:scope>
+                    </oauth2-provider:scopes>
+         </oauth2-provider:client>
+		</oauth2-provider:clients>
+
+	</oauth2-provider:config>
+   
+    
+    
+    <flow name="api-oauthproviderFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/resources" doc:name="HTTP"/>
+        <oauth2-provider:validate scopes="READ_RESOURCE" config-ref="OAuth_provider_module"  doc:name="OAuth provider module" throwExceptionOnUnaccepted="true"/>
+        <logger message="Access token granted" level="INFO" doc:name="Logger"/>
+        <set-payload value="Congratulations!!! You are logged in with your OAUTH Provider account." doc:name="Set Payload"/>
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <logger message="inside exception " level="INFO" doc:name="Logger"/>
+            <set-payload value="Invaild Access Token" doc:name="Set Payload"/>
+        </catch-exception-strategy>
+    </flow>
+</mule>

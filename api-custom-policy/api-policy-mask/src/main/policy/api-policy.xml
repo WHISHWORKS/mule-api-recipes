@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<policy
+    xmlns="http://www.mulesoft.org/schema/mule/policy"
+    xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:api-platform-gw="http://www.mulesoft.org/schema/mule/api-platform-gw"
+    xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml"
+    xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+    xmlns:json="http://www.mulesoft.org/schema/mule/json"
+        xsi:schemaLocation="http://www.mulesoft.org/schema/mule/policy http://www.mulesoft.org/schema/mule/policy/current/mule-policy.xsd
+              http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd              
+              http://www.mulesoft.org/schema/mule/api-platform-gw http://www.mulesoft.org/schema/mule/api-platform-gw/current/mule-api-platform-gw.xsd
+              http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+              http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+              http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd"
+              id="123" policyName="Masking">
+   
+    <before>
+                <mule:choice>
+                    <mule:when expression="#[payload instanceof java.io.InputStream]">
+                        <mule:set-variable variableName="bf" value="#[new java.io.BufferedInputStream(payload)]" />
+                        <mule:expression-component>
+                            <![CDATA[flowVars['bf'].mark(Integer.MAX_VALUE)]]>
+                        </mule:expression-component>
+                        <mule:set-variable variableName="payloadValue" value="#[org.apache.commons.io.IOUtils.toString(flowVars['bf'], 'UTF-8')]" />                       
+                    </mule:when>
+					<mule:when expression="#[payload instanceof byte[]]">
+						<mule:set-variable variableName="payloadValue" value="#[new String(payload, 'UTF-8')]" />
+					</mule:when>
+                    <mule:otherwise>
+                        <mule:set-variable variableName="payloadValue" value="#[payload]" />                        
+                    </mule:otherwise>
+                </mule:choice>
+            
+				<!-- pretty printing -->
+				<mule:choice>	
+					<mule:when expression="{{ log-payload }}">
+						 <mule:logger message=" payload before policy  #[flowVars['payloadValue']]" level="INFO"/>
+					</mule:when> 
+					<mule:otherwise>
+                        <mule:logger message=" Payload not allowed to be printed" level="INFO"/>                      
+                    </mule:otherwise>
+				</mule:choice>
+					<mule:choice>
+					<mule:when expression="flowVars['payloadValue'] != null">
+						<mule:expression-component>
+						
+           				 <![CDATA[
+           				
+						 
+						 import org.json.simple.JSONObject;
+						 import org.json.simple.parser.JSONParser;
+						 JSONParser parser = new JSONParser();
+						 JSONObject obj = parser.parse(flowVars['payloadValue']);
+						 System.out.println("obj data" + obj.get("CC"));
+						 obj.put("CC", "XXXX-XXXX-XXXX-XXXX"); 
+						 flowVars['payloadValue'] = obj.toJSONString();
+						 
+						]]>
+						</mule:expression-component>
+					
+						<mule:set-property propertyName="Content-Type" value="application/json"/>
+					<mule:set-payload value="#[flowVars['payloadValue']]"/>
+				</mule:when> 
+					</mule:choice>
+				
+    </before>
+    <!-- This is the message that gets logged in case of responses. Applied according to the pointcut specified below. -->
+    
+    <!-- Pointcuts specify where this policy takes effect. It refers to an specific Api and Version -->
+    <pointcut>
+        <api-platform-gw:api-pointcut apiName="{{ apiName }}" apiVersion="{{ apiVersionName }}"/>
+    </pointcut>
+</policy>

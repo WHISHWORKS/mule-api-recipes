@@ -1,0 +1,24 @@
+#%RAML 0.8
+title: RamlImport
+version: 1.0
+baseUri: http://server/api
+ 
+/library: !include child.raml
+  
+/library/Books:
+  post:
+    description: post a book into the library
+    body:
+      application/json:
+        example:
+    responses:
+      201:
+        body:
+          application/json:
+            example:  |
+              {
+                id: 24,
+                title: 'Matilda',
+                author: 'Rohald Dahl',
+                price: '$5.21' 
+              }

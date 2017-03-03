@@ -1,0 +1,26 @@
+#%RAML 1.0
+title: Basic Auth Example
+version: 1.0.0
+baseUri: 'http://basic-auth-server.herokuapp.com'
+protocols:
+  - HTTP
+  - HTTPS
+description: |
+  An example for how to use Basic Auth with Swagger.
+  Server code is available [here](https://github.com/mohsen1/basic-auth-server). It's running on Heroku.
+
+  **User Name and Password**
+  * User Name: `user`
+  * Password: `pass`
+securitySchemes:
+  basicAuth:
+    type: Basic Authentication
+    description: HTTP Basic Authentication. Works over `HTTP` and `HTTPS`
+/:
+  get:
+    displayName: GET_root
+    responses:
+      '200':
+        description: 'Will send `Authenticated` if authentication is succesful, otherwise it will send `Unauthorized`'
+    securedBy:
+      - basicAuth

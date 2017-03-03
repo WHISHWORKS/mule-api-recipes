@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "listcontracts"
+        }
+    },
+    "id": "1befee36-271c-4dd0-8572-1aa991c42e40",
+    "version": "5.2.0.0"
+}

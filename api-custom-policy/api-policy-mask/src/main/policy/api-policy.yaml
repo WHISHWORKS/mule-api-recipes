@@ -1,0 +1,16 @@
+id: mask CC details
+name: mask CC details
+description: Protects Credit Card details by Masking
+category: Security
+type: custom
+standalone: true
+requiresConnectivity: false
+providedCharacteristics: [Masking]
+requiredCharacteristics: []
+configuration:  
+  - propertyName: log-payload
+    name: Log Payload
+    description: Allows logging a message payload
+    type: boolean
+    defaultValue: false    
+    sensitive: false

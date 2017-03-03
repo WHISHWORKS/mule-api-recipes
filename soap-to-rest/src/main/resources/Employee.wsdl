@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:tns="http://www.example.org/contract/Employee"
+   xmlns:emp="http://www.example.org/schema/Employee"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="Employee"
+   targetNamespace="http://www.example.org/contract/Employee">
+   <wsdl:types>
+      <xsd:schema targetNamespace="http://www.example.org/schema/Employee">
+         <xsd:simpleType name='NameDataType'>
+            <xsd:restriction base='xsd:string'>
+               <xsd:maxLength value='20' />
+            </xsd:restriction>
+         </xsd:simpleType>
+         <xsd:complexType name="addressType">
+				  <xsd:sequence>
+				  <xsd:element name="addressLine1" type="emp:NameDataType" />
+               <xsd:element name="addressLine2" type="emp:NameDataType" />
+			   <xsd:element name="addressLine3" type="emp:NameDataType" />
+               <xsd:element name="town" type="emp:NameDataType" />
+			   <xsd:element name="state" type="emp:NameDataType" />
+			   <xsd:element name="country" type="emp:NameDataType" />
+			   </xsd:sequence>
+               </xsd:complexType>
+         <xsd:complexType name="EmployeeRecordType">
+            <xsd:sequence>
+               <xsd:element minOccurs="0" name="Id" type="xsd:int"/>
+               <xsd:element name="Lastname" type="emp:NameDataType" />
+               <xsd:element name="Firstname" type="emp:NameDataType" />
+               <xsd:element name="gender" type="emp:NameDataType" />
+               <xsd:element name="dateOfBirth"
+                  type="emp:NameDataType" />
+            <xsd:element name="address" type="emp:addressType"/>
+            </xsd:sequence>
+         </xsd:complexType>
+         <xsd:complexType name="EmptyResponse">
+            <xsd:sequence />
+         </xsd:complexType>
+         <xsd:element name="GetEmployeeDetails"
+            type="xsd:int" />
+         <xsd:element name="GetEmployeeDetailsResponse"
+            type="emp:EmployeeRecordType" />
+         <xsd:element name="BasicFault">
+            <xsd:complexType>
+               <xsd:sequence>
+                  <xsd:element name="errorDetails" type="xsd:string" />
+               </xsd:sequence>
+            </xsd:complexType>
+         </xsd:element>
+      </xsd:schema>
+   </wsdl:types>
+   <wsdl:message name="GetEmployeeDetailsRequest">
+      <wsdl:part element="emp:GetEmployeeDetails" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="GetEmployeeDetailsResponse">
+      <wsdl:part element="emp:GetEmployeeDetailsResponse"
+         name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="DataProcessingError">
+      <wsdl:documentation>
+      </wsdl:documentation>
+      <wsdl:part element="emp:BasicFault" name="BasicFault" />
+   </wsdl:message>
+   <wsdl:portType name="GetEmployeeInformationPortType">
+      <jaxws:bindings xmlns:jaxws="http://java.sun.com/xml/ns/jaxws">
+         <jaxws:enableWrapperStyle>false</jaxws:enableWrapperStyle>
+      </jaxws:bindings>
+      <wsdl:operation name="GetEmployeeDetails">
+         <wsdl:input message="tns:GetEmployeeDetailsRequest" />
+         <wsdl:output message="tns:GetEmployeeDetailsResponse" />
+         <wsdl:fault message="tns:DataProcessingError"
+            name="DataProcessingError" />
+      </wsdl:operation>
+   </wsdl:portType>
+   <wsdl:binding name="EmployeeBinding" type="tns:GetEmployeeInformationPortType">
+      <soap:binding style="document"
+         transport="http://schemas.xmlsoap.org/soap/http" />
+      <wsdl:operation name="GetEmployeeDetails">
+         <soap:operation soapAction="" />
+         <wsdl:input>
+            <soap:body use="literal" />
+         </wsdl:input>
+         <wsdl:output>
+            <soap:body use="literal" />
+         </wsdl:output>
+         <wsdl:fault name="DataProcessingError">
+            <soap:fault name="DataProcessingError" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+      
+   </wsdl:binding>
+   <wsdl:service name="EmployeeService">
+      <wsdl:port name="EmployeePort" binding="tns:EmployeeBinding">
+         <soap:address
+            location="http://localhost:8081/employee/getEmployeeDetails" />
+      </wsdl:port>
+   </wsdl:service>
+</wsdl:definitions>

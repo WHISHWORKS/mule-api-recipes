@@ -1,0 +1,584 @@
+<metadata__catalog__entry>
+  <version>5.2.0.0</version>
+  <types class="tree-map">
+    <entry>
+      <org.mule.common.metadata.DefaultMetaDataKey>
+        <id>GetEmployeeDetails</id>
+        <displayName>GetEmployeeDetails</displayName>
+        <category>DEFAULT</category>
+        <metaDataKeyPropertiesManager>
+          <properties>
+            <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+          </properties>
+        </metaDataKeyPropertiesManager>
+      </org.mule.common.metadata.DefaultMetaDataKey>
+      <org.mule.common.metadata.DefaultXmlMetaDataModel>
+        <dataType>XML</dataType>
+        <metaDataModelPropertiesManager>
+          <properties>
+            <org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty/>
+            <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+              <typeQName>
+                <namespaceURI>http://www.example.org/schema/Employee</namespaceURI>
+                <localPart>EmployeeIdType</localPart>
+                <prefix></prefix>
+              </typeQName>
+            </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+            <org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+              <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey">
+                <id>GetEmployeeDetails</id>
+                <displayName>GetEmployeeDetails</displayName>
+                <category>DEFAULT</category>
+                <metaDataKeyPropertiesManager>
+                  <properties>
+                    <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+                  </properties>
+                </metaDataKeyPropertiesManager>
+              </metaDataKey>
+              <derivedStructure>false</derivedStructure>
+              <generatedStructure>false</generatedStructure>
+            </org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+          </properties>
+        </metaDataModelPropertiesManager>
+        <fields>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>empId</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>INTEGER</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName>
+                      <namespaceURI>http://www.w3.org/2001/XMLSchema</namespaceURI>
+                      <localPart>int</localPart>
+                      <prefix></prefix>
+                    </typeQName>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>empId</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+        </fields>
+        <rootElement>
+          <namespaceURI>http://www.example.org/schema/Employee</namespaceURI>
+          <localPart>GetEmployeeDetails</localPart>
+          <prefix>ns0</prefix>
+        </rootElement>
+        <schemas class="org.mule.common.metadata.StringBasedSchemaProvider">
+          <schemas>
+            <string>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;xsd:schema xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:emp=&quot;http://www.example.org/schema/Employee&quot; xmlns:soap=&quot;http://schemas.xmlsoap.org/wsdl/soap/&quot; xmlns:tns=&quot;http://www.example.org/contract/Employee&quot; xmlns:wsdl=&quot;http://schemas.xmlsoap.org/wsdl/&quot; targetNamespace=&quot;http://www.example.org/schema/Employee&quot;&gt;&#xd;
+         &lt;xsd:simpleType name=&quot;GenderType&quot;&gt;&#xd;
+            &lt;xsd:restriction base=&quot;xsd:string&quot;&gt;&#xd;
+               &lt;xsd:enumeration value=&quot;M&quot;/&gt;&#xd;
+               &lt;xsd:enumeration value=&quot;F&quot;/&gt;&#xd;
+            &lt;/xsd:restriction&gt;&#xd;
+         &lt;/xsd:simpleType&gt;&#xd;
+         &lt;xsd:simpleType name=&quot;NameType&quot;&gt;&#xd;
+            &lt;xsd:restriction base=&quot;xsd:string&quot;&gt;&#xd;
+               &lt;xsd:maxLength value=&quot;20&quot;/&gt;&#xd;
+            &lt;/xsd:restriction&gt;&#xd;
+         &lt;/xsd:simpleType&gt;&#xd;
+         &lt;xsd:complexType name=&quot;addressType&quot;&gt;&#xd;
+				  &lt;xsd:sequence&gt;&#xd;
+				  &lt;xsd:element name=&quot;addressLine1&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;addressLine2&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+			   &lt;xsd:element name=&quot;addressLine3&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;town&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+			   &lt;xsd:element name=&quot;state&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+			   &lt;xsd:element name=&quot;country&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+			   &lt;/xsd:sequence&gt;&#xd;
+               &lt;/xsd:complexType&gt;&#xd;
+         &lt;xsd:complexType name=&quot;EmployeeRecordType&quot;&gt;&#xd;
+            &lt;xsd:sequence&gt;&#xd;
+               &lt;xsd:element minOccurs=&quot;0&quot; name=&quot;Id&quot; type=&quot;xsd:int&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;Lastname&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;Firstname&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;gender&quot; type=&quot;emp:GenderType&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;dateOfBirth&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+            &lt;xsd:element name=&quot;address&quot; type=&quot;emp:addressType&quot;/&gt;&#xd;
+            &lt;/xsd:sequence&gt;&#xd;
+         &lt;/xsd:complexType&gt;&#xd;
+         &lt;xsd:complexType name=&quot;EmptyResponse&quot;&gt;&#xd;
+            &lt;xsd:sequence/&gt;&#xd;
+         &lt;/xsd:complexType&gt;&#xd;
+         &lt;xsd:complexType name=&quot;EmployeeIdType&quot;&gt;&#xd;
+            &lt;xsd:sequence&gt;&#xd;
+               &lt;xsd:element name=&quot;empId&quot; type=&quot;xsd:int&quot;/&gt;&#xd;
+            &lt;/xsd:sequence&gt;&#xd;
+         &lt;/xsd:complexType&gt;&#xd;
+         &lt;xsd:element name=&quot;GetEmployeeDetails&quot; type=&quot;emp:EmployeeIdType&quot;/&gt;&#xd;
+         &lt;xsd:element name=&quot;GetEmployeeDetailsResponse&quot; type=&quot;emp:EmployeeRecordType&quot;/&gt;&#xd;
+         &lt;xsd:element name=&quot;BasicFault&quot;&gt;&#xd;
+            &lt;xsd:complexType&gt;&#xd;
+               &lt;xsd:sequence&gt;&#xd;
+                  &lt;xsd:element name=&quot;errorDetails&quot; type=&quot;xsd:string&quot;/&gt;&#xd;
+               &lt;/xsd:sequence&gt;&#xd;
+            &lt;/xsd:complexType&gt;&#xd;
+         &lt;/xsd:element&gt;&#xd;
+      &lt;/xsd:schema&gt;</string>
+          </schemas>
+          <encoding>windows-1252</encoding>
+          <baseUri>file:/D:/myWorkspace/employeeREST/src/main/resources/Employee.wsdl</baseUri>
+        </schemas>
+        <namespaceManager>
+          <namespacePrefix>
+            <entry>
+              <string>http://www.example.org/schema/Employee</string>
+              <string>ns0</string>
+            </entry>
+          </namespacePrefix>
+        </namespaceManager>
+      </org.mule.common.metadata.DefaultXmlMetaDataModel>
+    </entry>
+    <entry>
+      <org.mule.common.metadata.DefaultMetaDataKey>
+        <id>GetEmployeeDetailsResponse</id>
+        <displayName>GetEmployeeDetailsResponse</displayName>
+        <category>DEFAULT</category>
+        <metaDataKeyPropertiesManager>
+          <properties>
+            <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+          </properties>
+        </metaDataKeyPropertiesManager>
+      </org.mule.common.metadata.DefaultMetaDataKey>
+      <org.mule.common.metadata.DefaultXmlMetaDataModel>
+        <dataType>XML</dataType>
+        <metaDataModelPropertiesManager>
+          <properties>
+            <org.mule.common.metadata.property.TextBasedExampleMetaDataModelProperty/>
+            <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+              <typeQName>
+                <namespaceURI>http://www.example.org/schema/Employee</namespaceURI>
+                <localPart>EmployeeRecordType</localPart>
+                <prefix></prefix>
+              </typeQName>
+            </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+            <org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+              <metaDataKey class="org.mule.common.metadata.DefaultMetaDataKey">
+                <id>GetEmployeeDetailsResponse</id>
+                <displayName>GetEmployeeDetailsResponse</displayName>
+                <category>DEFAULT</category>
+                <metaDataKeyPropertiesManager>
+                  <properties>
+                    <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+                  </properties>
+                </metaDataKeyPropertiesManager>
+              </metaDataKey>
+              <derivedStructure>false</derivedStructure>
+              <generatedStructure>false</generatedStructure>
+            </org.mule.common.metadata.property.StructureIdentifierMetaDataModelProperty>
+          </properties>
+        </metaDataModelPropertiesManager>
+        <fields>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>Id</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>INTEGER</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName reference="../../../../../../../../../entry/org.mule.common.metadata.DefaultXmlMetaDataModel/fields/org.mule.common.metadata.DefaultMetaDataField/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>Id</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>Lastname</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName>
+                      <namespaceURI>http://www.example.org/schema/Employee</namespaceURI>
+                      <localPart>NameType</localPart>
+                      <prefix></prefix>
+                    </typeQName>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>Lastname</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>Firstname</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName reference="../../../../../../org.mule.common.metadata.DefaultMetaDataField[2]/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>Firstname</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>gender</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName>
+                      <namespaceURI>http://www.example.org/schema/Employee</namespaceURI>
+                      <localPart>GenderType</localPart>
+                      <prefix></prefix>
+                    </typeQName>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>gender</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>dateOfBirth</name>
+            <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+              <dataType>STRING</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName reference="../../../../../../org.mule.common.metadata.DefaultMetaDataField[2]/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>dateOfBirth</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+          <org.mule.common.metadata.DefaultMetaDataField>
+            <name>address</name>
+            <model class="org.mule.common.metadata.DefaultXmlMetaDataModel">
+              <dataType>XML</dataType>
+              <metaDataModelPropertiesManager>
+                <properties>
+                  <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                    <typeQName>
+                      <namespaceURI>http://www.example.org/schema/Employee</namespaceURI>
+                      <localPart>addressType</localPart>
+                      <prefix></prefix>
+                    </typeQName>
+                  </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                </properties>
+              </metaDataModelPropertiesManager>
+              <fields>
+                <org.mule.common.metadata.DefaultMetaDataField>
+                  <name>addressLine1</name>
+                  <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                    <dataType>STRING</dataType>
+                    <metaDataModelPropertiesManager>
+                      <properties>
+                        <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                          <typeQName reference="../../../../../../../../../org.mule.common.metadata.DefaultMetaDataField[2]/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                        </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                      </properties>
+                    </metaDataModelPropertiesManager>
+                  </model>
+                  <accessType>READ_WRITE</accessType>
+                  <metaDataFieldPropertyManager>
+                    <properties>
+                      <org.mule.common.metadata.property.QNameMetaDataProperty>
+                        <name>
+                          <namespaceURI></namespaceURI>
+                          <localPart>addressLine1</localPart>
+                          <prefix></prefix>
+                        </name>
+                      </org.mule.common.metadata.property.QNameMetaDataProperty>
+                    </properties>
+                  </metaDataFieldPropertyManager>
+                </org.mule.common.metadata.DefaultMetaDataField>
+                <org.mule.common.metadata.DefaultMetaDataField>
+                  <name>addressLine2</name>
+                  <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                    <dataType>STRING</dataType>
+                    <metaDataModelPropertiesManager>
+                      <properties>
+                        <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                          <typeQName reference="../../../../../../../../../org.mule.common.metadata.DefaultMetaDataField[2]/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                        </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                      </properties>
+                    </metaDataModelPropertiesManager>
+                  </model>
+                  <accessType>READ_WRITE</accessType>
+                  <metaDataFieldPropertyManager>
+                    <properties>
+                      <org.mule.common.metadata.property.QNameMetaDataProperty>
+                        <name>
+                          <namespaceURI></namespaceURI>
+                          <localPart>addressLine2</localPart>
+                          <prefix></prefix>
+                        </name>
+                      </org.mule.common.metadata.property.QNameMetaDataProperty>
+                    </properties>
+                  </metaDataFieldPropertyManager>
+                </org.mule.common.metadata.DefaultMetaDataField>
+                <org.mule.common.metadata.DefaultMetaDataField>
+                  <name>addressLine3</name>
+                  <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                    <dataType>STRING</dataType>
+                    <metaDataModelPropertiesManager>
+                      <properties>
+                        <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                          <typeQName reference="../../../../../../../../../org.mule.common.metadata.DefaultMetaDataField[2]/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                        </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                      </properties>
+                    </metaDataModelPropertiesManager>
+                  </model>
+                  <accessType>READ_WRITE</accessType>
+                  <metaDataFieldPropertyManager>
+                    <properties>
+                      <org.mule.common.metadata.property.QNameMetaDataProperty>
+                        <name>
+                          <namespaceURI></namespaceURI>
+                          <localPart>addressLine3</localPart>
+                          <prefix></prefix>
+                        </name>
+                      </org.mule.common.metadata.property.QNameMetaDataProperty>
+                    </properties>
+                  </metaDataFieldPropertyManager>
+                </org.mule.common.metadata.DefaultMetaDataField>
+                <org.mule.common.metadata.DefaultMetaDataField>
+                  <name>town</name>
+                  <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                    <dataType>STRING</dataType>
+                    <metaDataModelPropertiesManager>
+                      <properties>
+                        <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                          <typeQName reference="../../../../../../../../../org.mule.common.metadata.DefaultMetaDataField[2]/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                        </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                      </properties>
+                    </metaDataModelPropertiesManager>
+                  </model>
+                  <accessType>READ_WRITE</accessType>
+                  <metaDataFieldPropertyManager>
+                    <properties>
+                      <org.mule.common.metadata.property.QNameMetaDataProperty>
+                        <name>
+                          <namespaceURI></namespaceURI>
+                          <localPart>town</localPart>
+                          <prefix></prefix>
+                        </name>
+                      </org.mule.common.metadata.property.QNameMetaDataProperty>
+                    </properties>
+                  </metaDataFieldPropertyManager>
+                </org.mule.common.metadata.DefaultMetaDataField>
+                <org.mule.common.metadata.DefaultMetaDataField>
+                  <name>state</name>
+                  <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                    <dataType>STRING</dataType>
+                    <metaDataModelPropertiesManager>
+                      <properties>
+                        <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                          <typeQName reference="../../../../../../../../../org.mule.common.metadata.DefaultMetaDataField[2]/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                        </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                      </properties>
+                    </metaDataModelPropertiesManager>
+                  </model>
+                  <accessType>READ_WRITE</accessType>
+                  <metaDataFieldPropertyManager>
+                    <properties>
+                      <org.mule.common.metadata.property.QNameMetaDataProperty>
+                        <name>
+                          <namespaceURI></namespaceURI>
+                          <localPart>state</localPart>
+                          <prefix></prefix>
+                        </name>
+                      </org.mule.common.metadata.property.QNameMetaDataProperty>
+                    </properties>
+                  </metaDataFieldPropertyManager>
+                </org.mule.common.metadata.DefaultMetaDataField>
+                <org.mule.common.metadata.DefaultMetaDataField>
+                  <name>country</name>
+                  <model class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+                    <dataType>STRING</dataType>
+                    <metaDataModelPropertiesManager>
+                      <properties>
+                        <org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                          <typeQName reference="../../../../../../../../../org.mule.common.metadata.DefaultMetaDataField[2]/model/metaDataModelPropertiesManager/properties/org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty/typeQName"/>
+                        </org.mule.common.metadata.property.xml.SchemaTypeMetaDataProperty>
+                      </properties>
+                    </metaDataModelPropertiesManager>
+                  </model>
+                  <accessType>READ_WRITE</accessType>
+                  <metaDataFieldPropertyManager>
+                    <properties>
+                      <org.mule.common.metadata.property.QNameMetaDataProperty>
+                        <name>
+                          <namespaceURI></namespaceURI>
+                          <localPart>country</localPart>
+                          <prefix></prefix>
+                        </name>
+                      </org.mule.common.metadata.property.QNameMetaDataProperty>
+                    </properties>
+                  </metaDataFieldPropertyManager>
+                </org.mule.common.metadata.DefaultMetaDataField>
+              </fields>
+              <rootElement>
+                <namespaceURI>http://www.example.org/schema/Employee</namespaceURI>
+                <localPart>GetEmployeeDetailsResponse</localPart>
+                <prefix>ns0</prefix>
+              </rootElement>
+              <schemas class="org.mule.common.metadata.StringBasedSchemaProvider">
+                <schemas>
+                  <string>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;xsd:schema xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:emp=&quot;http://www.example.org/schema/Employee&quot; xmlns:soap=&quot;http://schemas.xmlsoap.org/wsdl/soap/&quot; xmlns:tns=&quot;http://www.example.org/contract/Employee&quot; xmlns:wsdl=&quot;http://schemas.xmlsoap.org/wsdl/&quot; targetNamespace=&quot;http://www.example.org/schema/Employee&quot;&gt;&#xd;
+         &lt;xsd:simpleType name=&quot;GenderType&quot;&gt;&#xd;
+            &lt;xsd:restriction base=&quot;xsd:string&quot;&gt;&#xd;
+               &lt;xsd:enumeration value=&quot;M&quot;/&gt;&#xd;
+               &lt;xsd:enumeration value=&quot;F&quot;/&gt;&#xd;
+            &lt;/xsd:restriction&gt;&#xd;
+         &lt;/xsd:simpleType&gt;&#xd;
+         &lt;xsd:simpleType name=&quot;NameType&quot;&gt;&#xd;
+            &lt;xsd:restriction base=&quot;xsd:string&quot;&gt;&#xd;
+               &lt;xsd:maxLength value=&quot;20&quot;/&gt;&#xd;
+            &lt;/xsd:restriction&gt;&#xd;
+         &lt;/xsd:simpleType&gt;&#xd;
+         &lt;xsd:complexType name=&quot;addressType&quot;&gt;&#xd;
+				  &lt;xsd:sequence&gt;&#xd;
+				  &lt;xsd:element name=&quot;addressLine1&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;addressLine2&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+			   &lt;xsd:element name=&quot;addressLine3&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;town&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+			   &lt;xsd:element name=&quot;state&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+			   &lt;xsd:element name=&quot;country&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+			   &lt;/xsd:sequence&gt;&#xd;
+               &lt;/xsd:complexType&gt;&#xd;
+         &lt;xsd:complexType name=&quot;EmployeeRecordType&quot;&gt;&#xd;
+            &lt;xsd:sequence&gt;&#xd;
+               &lt;xsd:element minOccurs=&quot;0&quot; name=&quot;Id&quot; type=&quot;xsd:int&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;Lastname&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;Firstname&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;gender&quot; type=&quot;emp:GenderType&quot;/&gt;&#xd;
+               &lt;xsd:element name=&quot;dateOfBirth&quot; type=&quot;emp:NameType&quot;/&gt;&#xd;
+            &lt;xsd:element name=&quot;address&quot; type=&quot;emp:addressType&quot;/&gt;&#xd;
+            &lt;/xsd:sequence&gt;&#xd;
+         &lt;/xsd:complexType&gt;&#xd;
+         &lt;xsd:complexType name=&quot;EmptyResponse&quot;&gt;&#xd;
+            &lt;xsd:sequence/&gt;&#xd;
+         &lt;/xsd:complexType&gt;&#xd;
+         &lt;xsd:complexType name=&quot;EmployeeIdType&quot;&gt;&#xd;
+            &lt;xsd:sequence&gt;&#xd;
+               &lt;xsd:element name=&quot;empId&quot; type=&quot;xsd:int&quot;/&gt;&#xd;
+            &lt;/xsd:sequence&gt;&#xd;
+         &lt;/xsd:complexType&gt;&#xd;
+         &lt;xsd:element name=&quot;GetEmployeeDetails&quot; type=&quot;emp:EmployeeIdType&quot;/&gt;&#xd;
+         &lt;xsd:element name=&quot;GetEmployeeDetailsResponse&quot; type=&quot;emp:EmployeeRecordType&quot;/&gt;&#xd;
+         &lt;xsd:element name=&quot;BasicFault&quot;&gt;&#xd;
+            &lt;xsd:complexType&gt;&#xd;
+               &lt;xsd:sequence&gt;&#xd;
+                  &lt;xsd:element name=&quot;errorDetails&quot; type=&quot;xsd:string&quot;/&gt;&#xd;
+               &lt;/xsd:sequence&gt;&#xd;
+            &lt;/xsd:complexType&gt;&#xd;
+         &lt;/xsd:element&gt;&#xd;
+      &lt;/xsd:schema&gt;</string>
+                </schemas>
+                <encoding reference="../../../../../../../entry/org.mule.common.metadata.DefaultXmlMetaDataModel/schemas/encoding"/>
+                <baseUri>file:/D:/myWorkspace/employeeREST/src/main/resources/Employee.wsdl</baseUri>
+              </schemas>
+              <namespaceManager>
+                <namespacePrefix>
+                  <entry>
+                    <string>http://www.example.org/schema/Employee</string>
+                    <string>ns0</string>
+                  </entry>
+                </namespacePrefix>
+              </namespaceManager>
+            </model>
+            <accessType>READ_WRITE</accessType>
+            <metaDataFieldPropertyManager>
+              <properties>
+                <org.mule.common.metadata.property.QNameMetaDataProperty>
+                  <name>
+                    <namespaceURI></namespaceURI>
+                    <localPart>address</localPart>
+                    <prefix></prefix>
+                  </name>
+                </org.mule.common.metadata.property.QNameMetaDataProperty>
+              </properties>
+            </metaDataFieldPropertyManager>
+          </org.mule.common.metadata.DefaultMetaDataField>
+        </fields>
+        <rootElement>
+          <namespaceURI>http://www.example.org/schema/Employee</namespaceURI>
+          <localPart>GetEmployeeDetailsResponse</localPart>
+          <prefix>ns0</prefix>
+        </rootElement>
+        <schemas class="org.mule.common.metadata.StringBasedSchemaProvider">
+          <schemas reference="../../fields/org.mule.common.metadata.DefaultMetaDataField[6]/model/schemas/schemas"/>
+          <encoding reference="../../../../entry/org.mule.common.metadata.DefaultXmlMetaDataModel/schemas/encoding"/>
+          <baseUri>file:/D:/myWorkspace/employeeREST/src/main/resources/Employee.wsdl</baseUri>
+        </schemas>
+        <namespaceManager reference="../fields/org.mule.common.metadata.DefaultMetaDataField[6]/model/namespaceManager"/>
+      </org.mule.common.metadata.DefaultXmlMetaDataModel>
+    </entry>
+  </types>
+  <connectorName>Web_Service_Consumer</connectorName>
+</metadata__catalog__entry>

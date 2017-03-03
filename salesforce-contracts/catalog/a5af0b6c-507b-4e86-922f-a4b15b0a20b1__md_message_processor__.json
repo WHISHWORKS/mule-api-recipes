@@ -1,0 +1,16 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "contract-update-request"
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "Salesforce__Basic_Authentication",
+            "typeId": "Contract"
+        }
+    },
+    "id": "a5af0b6c-507b-4e86-922f-a4b15b0a20b1",
+    "version": "5.2.0.0"
+}

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:spring="http://www.springframework.org/schema/beans" xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+        xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+        xmlns:expression-language="http://www.mulesoft.org/schema/mule/expression-language-gw"
+        xmlns:api-platform-gw="http://www.mulesoft.org/schema/mule/api-platform-gw"
+        xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit"
+        xmlns:proxy="http://www.mulesoft.org/schema/mule/proxy"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/expression-language-gw http://www.mulesoft.org/schema/mule/expression-language-gw/current/mule-expression-language-gw.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/api-platform-gw http://www.mulesoft.org/schema/mule/api-platform-gw/current/mule-api-platform-gw.xsd
+http://www.mulesoft.org/schema/mule/proxy http://www.mulesoft.org/schema/mule/proxy/current/mule-proxy.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+
+    <configuration defaultProcessingStrategy="non-blocking" doc:name="Configuration"/>
+
+    <expression-language:property-placeholder location="config.properties" />
+
+    <http:listener-config name="http-lc-0.0.0.0-8081" host="0.0.0.0" port="![p['proxy.port']]" doc:name="HTTP Listener Configuration"/>
+
+    <http:request-config
+      name="http-request-config"
+      host="![p['implementation.host']]"
+      port="![p['implementation.port']]"
+      basePath="![p['implementation.path']]" doc:name="HTTP Request Configuration"/>
+
+    <proxy:raml-proxy-config name="proxy-config" raml="![p['raml.location']]" disableValidations="true"/>
+
+    <api-platform-gw:api apiName="![p['api.name']]" version="![p['api.version']]" apikitRef="proxy-config" flowRef="proxy" doc:name="API Autodiscovery">
+    </api-platform-gw:api>
+
+    <flow name="proxy" >
+        <http:listener config-ref="http-lc-0.0.0.0-8081" path="![p['proxy.path']]" parseRequest="false" doc:name="HTTP"/>
+        <json:json-to-object-transformer returnClass="java.util.HashMap " doc:name="JSON to Object"/>
+        <choice doc:name="Choice">
+            <when expression="#[payload.amount &gt;= 5000]">
+                <flow-ref name="loan_amt&gt;$5000" doc:name="loan_amt&gt;$5000"/>
+            </when>
+            <otherwise>
+                <flow-ref name="loan_amt&lt;$5000" doc:name="loan_amt&lt;$5000"/>
+            </otherwise>
+        </choice>
+        <custom-processor class="com.mulesoft.gateway.extension.ProxyRequestHeadersProcessor" doc:name="Custom Processor"/>
+        <proxy:raml config-ref="proxy-config"/>
+        <http:request config-ref="http-request-config" method="#[message.inboundProperties['http.method']]" path="#[message.inboundProperties['http.request.path'].substring(message.inboundProperties['http.listener.path'].length()-2)]" parseResponse="false" doc:name="HTTP">
+            <http:request-builder>
+                <http:query-params expression="#[message.inboundProperties['http.query.params']]"/>
+            </http:request-builder>
+            <http:success-status-code-validator values="0..599" />
+        </http:request>
+        <custom-processor class="com.mulesoft.gateway.extension.ProxyResponseHeadersProcessor" doc:name="Custom Processor"/>
+        <exception-strategy ref="defaultExceptionStrategy" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <sub-flow name="loan_amt&gt;$5000">
+        <set-payload value="{
+  &quot;ReferenceID&quot;: &quot;23456565&quot;,
+  &quot;Status&quot;: &quot;Require some clarification&quot;
+   }
+" doc:name="Set Payload"/>
+    </sub-flow>
+    <sub-flow name="loan_amt&lt;$5000">
+        <set-payload value="{
+  &quot;ReferenceID&quot;: &quot;1234567&quot;,
+  &quot;Status&quot;: &quot;Approved&quot;
+}
+" doc:name="Set Payload"/>
+    </sub-flow>
+
+    <flow name="console" >
+        <http:listener config-ref="http-lc-0.0.0.0-8081" path="![p['console.path']]" parseRequest="false" doc:name="HTTP"/>
+        <apikit:console config-ref="proxy-config" doc:name="APIkit Console"/>
+    </flow>
+
+    <apikit:mapping-exception-strategy name="defaultExceptionStrategy">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException"/>
+            <set-payload value="resource not found" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException"/>
+            <set-payload value="method not allowed" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="504">
+            <apikit:exception value="java.util.concurrent.TimeoutException"/>
+            <set-payload value="Gateway timeout" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>

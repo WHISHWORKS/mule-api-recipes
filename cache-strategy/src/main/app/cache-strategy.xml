@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <db:mysql-config name="MySQL_Configuration" host="123.176.38.211" port="3306" user="apiuser1" password="apiwhish#369" database="apiproject" doc:name="MySQL Configuration"/>
+    <ee:object-store-caching-strategy name="Caching_Strategy" keyGenerationExpression="#[payload]" doc:name="Caching Strategy">
+        <custom-object-store class="ww.caching.RedisCache"/>
+    </ee:object-store-caching-strategy>
+    <flow name="cache-strategyFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/api/{id}" allowedMethods="GET" doc:name="HTTP"/>
+        <set-payload value="#[message.inboundProperties.'http.uri.params'.id]" doc:name="Set Payload"/>
+        <ee:cache doc:name="Cache" cachingStrategy-ref="Caching_Strategy">
+            <logger message="Calling DB for key #[payload]" level="INFO" doc:name="Logger"/>
+            <db:select config-ref="MySQL_Configuration" doc:name="Database">
+                <db:parameterized-query><![CDATA[select * from apiproject.cachingapi where id = #[payload]]]></db:parameterized-query>
+            </db:select>
+            <json:object-to-json-transformer doc:name="Object to JSON"/>
+        </ee:cache>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+    </flow>
+</mule>

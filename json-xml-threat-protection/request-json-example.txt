@@ -1,0 +1,52 @@
+{
+  "books": {
+    "genre": {
+      "fiction": [
+        {
+          "classic": {
+            "id": "24",
+            "title": "Pilgrim's Progress",
+            "author": "John Bunyan",
+            "price": "$19.21"
+          },
+          "mystery": [
+            {
+              "Crime": {
+                "id": "24",
+                "title": "The Cartel",
+                "author": "Don Winslow",
+                "price": "$16.45"
+              }
+            }
+          ]
+        }
+      ],
+      "non fiction": [
+        {
+          "Art": {
+            "id": "24",
+            "title": "Ways of Seeing",
+            "author": "John Berger",
+            "price": "$20.99"
+          },
+          "Cooking": [
+            {
+              "Italian": {
+                "id": "24",
+                "title": "Essentials of Classic Italian Cooking",
+                "author": "Rohald Dahl",
+                "price": "$5.21"
+              },
+              "Mexican": {
+                "id": "24",
+                "title": "Pati'sMexicanTable",
+                "author": "PatiJinich",
+                "price": "$8.46"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

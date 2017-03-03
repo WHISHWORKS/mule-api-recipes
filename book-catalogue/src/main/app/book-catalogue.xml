@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd 
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+    <http:listener-config name="book-catalogue-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <apikit:config name="book-catalogue-config" raml="book-catalogue.raml" consoleEnabled="false" doc:name="Router"/>
+    <db:mysql-config name="MySQL_Configuration" host="123.176.38.211" port="3306" user="apiuser1" password="apiwhish#369" database="apiproject" doc:name="MySQL Configuration"/>
+    <flow name="book-catalogue-main">
+        <http:listener config-ref="book-catalogue-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
+        <apikit:router config-ref="book-catalogue-config" doc:name="APIkit Router"/>
+        <exception-strategy ref="book-catalogue-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="book-catalogue-console">
+        <http:listener config-ref="book-catalogue-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <apikit:console config-ref="book-catalogue-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="post:/catalogue/books:book-catalogue-config">
+        <set-payload value="#[payload]" doc:name="Set Payload" />
+
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	Id: payload.Id,
+	Title: payload.Title,
+	Author: payload.Author,
+	Price: payload.Price
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <db:insert config-ref="MySQL_Configuration" doc:name="Add record to database">
+            <db:parameterized-query><![CDATA[Insert into books (Id, Title, Author, Price) Values (#[payload.Id], #[payload.Title], #[payload.Author], #[payload.Price]);]]></db:parameterized-query>
+
+        </db:insert>
+        <set-payload value="{STATUS: Successfully Created}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="get:/catalogue/books/{bookId}:book-catalogue-config">
+        <db:select config-ref="MySQL_Configuration" doc:name="Get record from database for the bookId">
+            <db:parameterized-query><![CDATA[SELECT * FROM books where Id=#[flowVars.bookId];]]></db:parameterized-query>
+        </db:select>
+        <choice doc:name="Choice">
+            <when expression="#[payload.size() &gt; 0]">
+                <json:object-to-json-transformer doc:name="Object to JSON" />
+                <logger message="Fetched the record" level="INFO" doc:name="Logger" />
+            </when>
+            <otherwise>
+                <logger message="Record for bookId does not exists" level="INFO" doc:name="Logger" />
+            </otherwise>
+        </choice>
+    </flow>
+    
+    <flow name="put:/catalogue/books/{bookId}:book-catalogue-config">
+        <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+        <dw:transform-message doc:name="Save Input Json to flow variable">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+}]]></dw:set-payload>
+            <dw:set-variable variableName="InputData"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	Id: payload.Id,
+	Title: payload.Title,
+	Author: payload.Author,
+	Price: payload.Price
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <db:select config-ref="MySQL_Configuration" doc:name="Check if the bookId exists">
+            <db:parameterized-query><![CDATA[SELECT * FROM books where Id=#[flowVars.bookId];]]></db:parameterized-query>
+        </db:select>
+        <choice doc:name="Choice">
+            <when expression="#[payload.size() &gt; 0]">
+                <db:update config-ref="MySQL_Configuration" doc:name="Update the Database">
+                    <db:parameterized-query><![CDATA[Update books set Id = #[flowVars.InputData.Id], Title = #[flowVars.InputData.Title], Author = #[flowVars.InputData.Author], Price = #[flowVars.InputData.Price] where Id=#[flowVars.bookId]]]></db:parameterized-query>
+                </db:update>
+                <db:select config-ref="MySQL_Configuration" doc:name="Get the response fron the database">
+                    <db:parameterized-query><![CDATA[SELECT * FROM books where Id=#[flowVars.InputData.Id];]]></db:parameterized-query>
+                </db:select>
+                <json:object-to-json-transformer doc:name="Object to JSON" />
+                <logger message="Modified the record" level="INFO" doc:name="Logger" />
+            </when>
+            <otherwise>
+                <set-payload value="{Message: Book Id doesnot exist}" doc:name="Set Payload" />
+                <logger message="Record for bookId does not exists" level="INFO" doc:name="Logger" />
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="delete:/catalogue/books/{bookId}:book-catalogue-config">
+        <db:select config-ref="MySQL_Configuration" doc:name="Get record from database for the bookId">
+            <db:parameterized-query><![CDATA[SELECT * FROM books where Id=#[flowVars.bookId];]]></db:parameterized-query>
+
+        </db:select>
+        <choice doc:name="Choice">
+            <when expression="#[payload.size() &gt; 0]">
+                <db:delete config-ref="MySQL_Configuration" doc:name="Database">
+                    <db:parameterized-query><![CDATA[delete from books where id= #[flowVars.bookId]]]></db:parameterized-query>
+                </db:delete>
+                <set-payload value="Book with id=#[flowVars.bookId] is successfully deleted." doc:name="Set Payload"/>
+            </when>
+
+            <otherwise>
+                <logger message="Record for bookId does not exists" level="INFO" doc:name="Logger" />
+            </otherwise>
+        </choice>
+    </flow>
+    <apikit:mapping-exception-strategy name="book-catalogue-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>

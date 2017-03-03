@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mule-policy xmlns="http://www.mulesoft.com/tooling/project" runtimeId="org.mule.tooling.server.3.8.0.ee" schemaVersion="5.3.0.0">
+    <name>api-policy-mask</name>
+    <description></description>
+    <xmlFileName>api-policy.xml</xmlFileName>
+    <yamlFileName>api-policy.yaml</yamlFileName>
+</mule-policy>
