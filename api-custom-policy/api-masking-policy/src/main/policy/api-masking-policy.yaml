@@ -1,0 +1,16 @@
+id: mask-sensitive-data
+name: Masking Sensitive Data
+description: Protects Sensitive Data details by Masking
+category: Security
+type: custom
+standalone: true
+requiresConnectivity: false
+providedCharacteristics: [Masking]
+requiredCharacteristics: []
+configuration:  
+  - propertyName: mask
+    name: Mask sensitive data
+    description: Allows Masking of sensitive data
+    type: boolean
+    defaultValue: true    
+    sensitive: false
