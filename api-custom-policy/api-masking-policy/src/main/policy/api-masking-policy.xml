@@ -13,7 +13,7 @@
               http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
               http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
               http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd"
-              id="123" policyName="Masking">
+              id="1" policyName="Masking">
    
     <before>
                 <mule:choice>
@@ -33,14 +33,6 @@
                 </mule:choice>
             
 				<!-- pretty printing -->
-				<mule:choice>	
-					<mule:when expression="{{ log-payload }}">
-						 <mule:logger message=" payload before policy  #[flowVars['payloadValue']]" level="INFO"/>
-					</mule:when> 
-					<mule:otherwise>
-                        <mule:logger message=" Payload not allowed to be printed" level="INFO"/>                      
-                    </mule:otherwise>
-				</mule:choice>
 					<mule:choice>
 					<mule:when expression="flowVars['payloadValue'] != null">
 						<mule:expression-component>
@@ -52,7 +44,6 @@
 						 import org.json.simple.parser.JSONParser;
 						 JSONParser parser = new JSONParser();
 						 JSONObject obj = parser.parse(flowVars['payloadValue']);
-						 System.out.println("obj data" + obj.get("CC"));
 						 obj.put("CC", "XXXX-XXXX-XXXX-XXXX"); 
 						 flowVars['payloadValue'] = obj.toJSONString();
 						 
