@@ -1,0 +1,19 @@
+<custom__type__definition>
+  <version>5.2.0.0</version>
+  <typeName class="org.mule.common.metadata.DefaultMetaDataKey">
+    <id>Id</id>
+    <displayName>Id</displayName>
+    <category>DEFAULT</category>
+    <metaDataKeyPropertiesManager>
+      <properties>
+        <org.mule.common.metadata.key.property.dsql.DsqlFromMetaDataKeyProperty/>
+      </properties>
+    </metaDataKeyPropertiesManager>
+  </typeName>
+  <metadataModel class="org.mule.common.metadata.DefaultSimpleMetaDataModel">
+    <dataType>INTEGER</dataType>
+    <metaDataModelPropertiesManager>
+      <properties/>
+    </metaDataModelPropertiesManager>
+  </metadataModel>
+</custom__type__definition>
