@@ -6,8 +6,8 @@
 <%@ page language="java"%>
 <%
 String code = request.getParameter("code");
-String TOKEN_URL = "http://api-oauthprovider.eu.cloudhub.io/oauthprovider/api/token";
-String AUTHORIZE_URL = "http://api-oauthprovider.eu.cloudhub.io/oauthprovider/api/authorize";
+String TOKEN_URL = "http://localhost:8081/oauthprovider/api/token";
+String AUTHORIZE_URL = "http://localhost:8081/oauthprovider/api/authorize";
 String CLIENT_ID = "12345";
 String CLIENT_SECRET = "abc";
 if (StringUtils.isNotBlank(code)) {

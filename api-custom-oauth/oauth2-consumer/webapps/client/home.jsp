@@ -23,7 +23,7 @@
 <%
    String recv = "";
    String recvbuff = "";
-   URL jsonpage = new URL("http://api-oauthprovider.eu.cloudhub.io/resources?access_token=" + accessToken);
+   URL jsonpage = new URL("http://localhost:8081/resources?access_token=" + accessToken);
    URLConnection urlcon = jsonpage.openConnection();
    BufferedReader buffread = new BufferedReader(new InputStreamReader(urlcon.getInputStream()));
 

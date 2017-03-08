@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apachekafka="http://www.mulesoft.org/schema/mule/apachekafka" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/apachekafka http://www.mulesoft.org/schema/mule/apachekafka/current/mule-apachekafka.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <http:listener-config name="api-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration" />
+    <apikit:config name="api-config" raml="api.raml" consoleEnabled="false" doc:name="Router" />
+    <sfdc:config name="Salesforce__Basic_Authentication" username="${sfdc.user}" password="${sfdc.password}" securityToken="${sfdc.token}" doc:name="Salesforce: Basic Authentication" />
+
+    <flow name="api-main">
+        <http:listener config-ref="api-httpListenerConfig" path="/api/*" doc:name="HTTP" />
+        <apikit:router config-ref="api-config" doc:name="APIkit Router" />
+        <exception-strategy ref="api-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy" />
+    </flow>
+    <flow name="api-console">
+        <http:listener config-ref="api-httpListenerConfig" path="/console/*" doc:name="HTTP" />
+        <apikit:console config-ref="api-config" doc:name="APIkit Console" />
+    </flow>
+
+    <flow name="get:/getorder:api-config">
+        <set-variable variableName="id" value="#[message.inboundProperties.'http.query.params'.id]" doc:name="Set Order ID" />
+        <logger message="ID: #[flowVars.id]" level="INFO" doc:name="Logger" />
+        <sfdc:query config-ref="Salesforce__Basic_Authentication" query="SELECT Id,EffectiveDate,Status,AccountId,ContractId,BillingCity FROM Order where Id ='#[flowVars.id]'" doc:name="Salesforce" />
+        <choice doc:name="Choice">
+            <when expression="#[payload.size()&gt;0]">
+                <logger message="payload after salesforce + #[payload]" level="INFO" doc:name="Logger" />
+                <set-payload value="#[payload]" doc:name="Set Payload" />
+            </when>
+            <otherwise>
+                <set-payload value="&quot;Order ID does not Exist!!!&quot;" doc:name="Set Payload" />
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="post:/neworder:api-config">
+       <set-payload value="#[payload]" doc:name="Set Order Details" />
+        <logger message="#[payload]" level="INFO" doc:name="Logger" />
+        <dw:transform-message metadata:id="db490b9c-57e6-4823-a271-c4fe5b36c8bd" doc:name="Transform Message">
+            <dw:input-payload mimeType="application/json" doc:sample="F:\Projects\Event API Project\event-api-order-SF-Sanjay-v1.0\example\input.json" />
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	ContractId: payload.ContractId,
+	AccountId: payload.AccountId,
+	EffectiveDate: payload.EffectiveDate as :date,
+	Status: payload.Status,
+	BillingCity: payload.BillingCity
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="#[payload]" level="INFO" doc:name="Logger" />
+        <set-variable variableName="input" value="#[payload]" doc:name="Input" />
+        <sfdc:create-single config-ref="Salesforce__Basic_Authentication" type="Order" doc:name="Salesforce" />
+        <logger message="#[payload] id: #[payload.id]" level="INFO" doc:name="Logger" />
+        <sfdc:query-single config-ref="Salesforce__Basic_Authentication" query="SELECT AccountId,BillingCity,ContractId,Id,Status,EffectiveDate,CreatedDate FROM Order where Id= '#[payload.id]'" doc:name="Salesforce" />
+        <set-variable variableName="sf_pl" value="#[payload]" doc:name="Salesforce_pl" />
+        <logger message="#[flowVars.sf_pl]" level="INFO" doc:name="Logger" />
+        <set-payload value="&quot;Order Created Successfully with ID: &quot; + #[flowVars.sf_pl.Id]" doc:name="Set Payload" />
+    </flow>
+    <flow name="delete:/deleteorder:api-config">
+        <set-payload value="#[message.inboundProperties.'http.query.params'.id]" doc:name="Set Payload" />
+        <set-variable variableName="id" value="#[message.inboundProperties.'http.query.params'.id]" doc:name="Variable" />
+        <logger message="Extracted ID:  #[flowVars.id]" level="INFO" doc:name="Logger" />
+        <sfdc:query config-ref="Salesforce__Basic_Authentication" query="SELECT AccountId FROM Order where id = '#[flowVars.id]'" doc:name="Salesforce" />
+        <logger message="#[payload.size()]" level="INFO" doc:name="Logger" />
+        <choice doc:name="Choice">
+            <when expression="#[payload.size()&gt;0]">
+                <dw:transform-message metadata:id="8bbb7b9c-22e5-49e9-b2bf-5d6c6635dca0" doc:name="Transform Message">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+[
+	flowVars.id
+]]]></dw:set-payload>
+                </dw:transform-message>
+                <sfdc:delete config-ref="Salesforce__Basic_Authentication" doc:name="Salesforce">
+                    <sfdc:ids ref="#[payload]" />
+                </sfdc:delete>
+                <logger message="delete from training.Order where Id = &quot;#[flowVars.id]&quot;" level="INFO" doc:name="Logger" />
+                <set-payload value="&quot;Deleted ID: &quot; + #[flowVars.id]" doc:name="Set Payload" />
+            </when>
+            <otherwise>
+                <set-payload value="&quot;Order Already deleted&quot;" doc:name="Set Payload" />
+            </otherwise>
+        </choice>
+    </flow>
+    <apikit:mapping-exception-strategy name="api-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property" />
+            <set-payload value="&quot;Bad Request:&quot; +  !!! #[exception.cause.message]" doc:name="Set Payload" />
+        </apikit:mapping>
+        <apikit:mapping statusCode="500">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Copy_of_Property" />
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Copy_of_Set Payload" />
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>
