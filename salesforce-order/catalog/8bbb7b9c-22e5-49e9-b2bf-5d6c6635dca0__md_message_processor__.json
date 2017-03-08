@@ -1,0 +1,11 @@
+{
+    "inputMessageMetadata": {},
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "DeleteOrder"
+        }
+    },
+    "id": "8bbb7b9c-22e5-49e9-b2bf-5d6c6635dca0",
+    "version": "5.2.0.0"
+}

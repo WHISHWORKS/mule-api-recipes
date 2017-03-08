@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:core="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <munit:config name="munit" doc:name="MUnit configuration" mock-connectors="false" mock-inbounds="false"/>
+    <spring:beans>
+        <spring:import resource="classpath:api.xml"/>
+    </spring:beans>
+    <http:request-config name="HTTP_Request_Configuration" host="localhost" port="8081" doc:name="HTTP Request Configuration"/>
+    <munit:test name="api-test-suite-get:/getorder:api-configTest" description="Test">
+        <munit:set payload="801280000010Em2AAE" doc:name="Set Message"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/api/getorder" method="GET" doc:name="HTTP">
+            <http:request-builder>
+                <http:query-param paramName="id" value="#[payload]"/>
+            </http:request-builder>
+        </http:request>
+        <munit:assert-true message="Status Code dosen't match" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="Assert True"/>
+    </munit:test>
+    <munit:test name="api-test-suite-post:/neworder:api-configTest" description="Test">
+        <set-payload value="{       &quot;EffectiveDate&quot;: &quot;2017-03-01&quot;,       &quot;Status&quot;: &quot;Draft&quot;,       &quot;BillingCity&quot;: &quot;New York&quot;,       &quot;AccountId&quot;: &quot;0012800001Bo16l&quot;,       &quot;ContractId&quot;: &quot;80028000000dtZV&quot; }  " mimeType="application/json" doc:name="Set Payload"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/api/neworder" method="POST" doc:name="HTTP"/>
+        <munit:assert-true message="Status Code dosen't match" condition="#[messageInboundProperty('http.status').is(eq(201))]" doc:name="Assert True"/>
+    </munit:test>
+    <munit:test name="api-test-suite-delete:/deleteorder:api-configTest" description="Test">
+        <munit:set payload="801280000010DTCAA2" doc:name="Set Message"/>
+        <http:request config-ref="HTTP_Request_Configuration" path="/api/deleteorder" method="DELETE" doc:name="HTTP">
+            <http:request-builder>
+                <http:query-param paramName="id" value="#[payload]"/>
+            </http:request-builder>
+        </http:request>
+        <munit:assert-true message="Status Code dosen't match" condition="#[messageInboundProperty('http.status').is(eq(200))]" doc:name="Assert True"/>
+    </munit:test>
+</mule>
