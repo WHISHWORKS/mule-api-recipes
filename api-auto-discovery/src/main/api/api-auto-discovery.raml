@@ -1,0 +1,21 @@
+#%RAML 0.8
+title: API Auto Discovery
+version: 1.0
+/sample:
+  displayName: Test API Auto Discovery
+  get:
+    description: Get test response
+    body:
+      application/json:
+    responses:
+      201:
+        body:
+          application/json:
+            example: | 
+              {"message" : "Testing API Auto Discovery" }
+              
+      400:
+        body:
+          application/json:
+            example: |
+              {"message" : "something went wrong"}
