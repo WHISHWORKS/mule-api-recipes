@@ -1,0 +1,31 @@
+
+    displayName: books
+    post:
+      description: Add a new book to catalogue
+      body:
+        application/json:
+          example: |
+            {
+              "Id": "24",
+              "Title": "Matilda",
+              "Author": "Rohald Dahl",
+              "Price": "$5.21"
+            }
+      responses:
+        201:
+          body:
+            application/json:
+              example: |
+                {
+                  "Id": "24",
+                  "Title": "Matilda",
+                  "Author": "Rohald Dahl",
+                  "Price": "$5.21"
+                }
+        500:
+          body:
+            application/json:
+              example: |
+                {
+                  "errorMessage": "The book couldn't be entered."
+                } 
