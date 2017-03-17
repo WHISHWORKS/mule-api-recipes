@@ -1,0 +1,55 @@
+#%RAML 0.8
+title: Book Catalogue
+version: 1.0
+baseUri: http://localhost:8081/api
+/catalogue:
+  /books:
+    /PostBookDetails: !include post-bookDetails.raml  
+    /{bookId}:
+      displayName: books
+      get:
+        description: Get books from the catalogue wrt Id
+        responses:
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                    "Id": "24",
+                    "Title": "Matilda",
+                    "Author": "Rohald Dahl",
+                    "Price": "$5.21"
+                  }
+      put:
+        description: Modify a book Price
+        body:
+          application/json:
+            example: |
+              {
+                "Id": "24",
+                "Title": "Matilda",
+                "Author": "Rohald Dahl",
+                "Price": "$5.21"
+              }
+        responses:
+          200:
+            body:
+              application/json:
+                example: |
+                  {
+                    "Id": "24",
+                    "Title": "Matilda",
+                    "Author": "Rohald Dahl",
+                    "Price": "$5.21"
+                  }
+      delete:
+        description: delete the book record
+        responses: 
+          204: 
+            body: 
+              application/json: 
+                example: |
+                  {
+                    "Status": "Successfully Deleted"
+                  }
+    
