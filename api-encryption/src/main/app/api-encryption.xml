@@ -19,18 +19,18 @@ http://www.mulesoft.org/schema/mule/encryption http://www.mulesoft.org/schema/mu
         <encryption:encrypt config-ref="Encryption" using="JCE_ENCRYPTER" doc:name="JCE Encrypter">
             <encryption:jce-encrypter key="kishankrsoni2512"/>
         </encryption:encrypt>
-        <file:outbound-endpoint path="E:\backup\test" outputPattern="sample.txt" responseTimeout="10000" doc:name="Writing into Text File"/>
+        <file:outbound-endpoint path="${path.encryptedFileLocation}" outputPattern="sample.txt" responseTimeout="10000" doc:name="Writing into Text File"/>
         <logger level="INFO" doc:name="Encrypted data Value" message="#[payload]"/>
     </flow>
-        <flow name="DecryptionFlow">
-        <file:inbound-endpoint path="E:\backup\test" responseTimeout="10000" doc:name="Read data from text file">
+    <flow name="DecryptionFlow">
+        <file:inbound-endpoint path="${path.encryptedFileLocation}" responseTimeout="10000" doc:name="Read data from text file">
             <file:filename-regex-filter pattern="sample.txt" caseSensitive="false"/>
         </file:inbound-endpoint>
         <file:file-to-string-transformer doc:name="File to String"/>
         <encryption:decrypt config-ref="Encryption" doc:name="Decryption">
             <encryption:jce-encrypter key="kishankrsoni2512"/>
         </encryption:decrypt>
-        <set-payload value="#[payload] is a good boy" doc:name="changes in data"/>
-        <file:outbound-endpoint path="E:\backup\original" outputPattern="final.txt" responseTimeout="10000" doc:name="Write into file"/>
+        <set-payload value="#[payload] is a good boy" doc:name="Implementation of decypted data"/>
+        <file:outbound-endpoint path="${path.output}" outputPattern="final.txt" responseTimeout="10000" doc:name="Write into file"/>
     </flow>
 </mule>
