@@ -34,49 +34,34 @@ baseUri: http://localhost:8081/api
                 {
                   "errorMessage": "The book couldn't be entered."
                 }    
-    /{bookId}:
-      get:
-        description: Get books from the catalogue wrt Id
-        responses:
-          200:
-            body:
-              application/json:
-                example: |
-                  {
-                    "Id": "24",
-                    "Title": "Matilda",
-                    "Author": "Rohald Dahl",
-                    "Price": "$5.21"
-                  }
-      put:
-        description: Modify a book Price
-        body:
-          application/json:
-            example: |
-              {
-                "Id": "24",
-                "Title": "Matilda",
-                "Author": "Rohald Dahl",
-                "Price": "$5.21"
-              }
-        responses:
-          200:
-            body:
-              application/json:
-                example: |
-                  {
-                    "Id": "24",
-                    "Title": "Matilda",
-                    "Author": "Rohald Dahl",
-                    "Price": "$5.21"
-                  }
-      delete:
-        description: delete the book record
-        responses: 
-          204: 
-            body: 
-              application/json: 
-                example: |
-                  {
-                    "Status": "Successfully Deleted"
-                  }
+    /booklist:
+        displayName: booklist 
+        post:
+          description: Add a new book to file
+          body:
+            application/json:
+              example: |
+                {
+                  "Id": "24",
+                  "Title": "Matilda",
+                  "Author": "Rohald Dahl",
+                  "Price": "$5.21"
+                }
+          responses:
+            201:
+              body:
+                application/json:
+                  example: |
+                    {
+                      "Id": "24",
+                      "Title": "Matilda",
+                      "Author": "Rohald Dahl",
+                      "Price": "$5.21"
+                    }
+            500:
+              body:
+                application/json:
+                  example: |
+                    {
+                      "errorMessage": "The book couldn't be entered."
+                    }    
