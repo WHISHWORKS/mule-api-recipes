@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Appenders>
-        <RollingFile name="file" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}customer_service_api.log" 
-                 filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}customer_service_api-%i.log">
-            <PatternLayout pattern="%d [%t] %-5p %c - %m%n" />
-            <SizeBasedTriggeringPolicy size="10 MB" />
-            <DefaultRolloverStrategy max="10"/>
-        </RollingFile>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
+        </Console>
     </Appenders>
+
     <Loggers>
+
         <!-- CXF is used heavily by Mule for web services -->
         <AsyncLogger name="org.apache.cxf" level="WARN"/>
 
@@ -26,8 +25,11 @@
         <AsyncLogger name="org.jetel" level="WARN"/>
         <AsyncLogger name="Tracking" level="WARN"/>
         
+        <!--AsyncLogger name="httpclient.wire" level="ALL" /-->
+
         <AsyncRoot level="INFO">
-            <AppenderRef ref="file" />
+            <AppenderRef ref="Console"/>
         </AsyncRoot>
     </Loggers>
+
 </Configuration>

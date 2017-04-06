@@ -1,0 +1,71 @@
+#%RAML 0.8
+baseUri: https://mocksvc.mulesoft.com/mocks/511c8e9a-ee75-4a99-a769-1f6dc0a619d7/api
+title: Customer Infromation Service
+version: 1.0
+#baseUri: http://customer-information-api.cloudhub.io/api
+#baseUri: https://mocksvc.mulesoft.com/mocks/511c8e9a-ee75-4a99-a769-1f6dc0a619d7/api
+
+schemas: 
+  - customer: !include schemas/customer_schema.json
+    
+/customers:
+  post :
+    description: API Post Service
+    body: 
+      application/json:
+        schema: customer
+        example: |
+          {
+          "id": "1",
+          "name": "Eduard Walker",
+          "phone": "1-(318)596-8473",
+          "email": "ewalker0@liveinternet.ru"
+          }
+    responses:
+      201:
+        description: Created
+        body:
+          application/json:
+            example: |
+              {
+                "id": "1",
+                "name": "Eduard Walker",
+                "phone": "1-(318)596-8473",
+                "email": "ewalker0@liveinternet.ru"
+              }
+      400:
+        description: Invalid as some mandatory field is empty
+        body:
+
+  /{customerId}:
+    get :
+      description: Customer get service
+      responses: 
+        200:
+          body: 
+            application/json:
+        405:
+          body:           
+          
+  put:
+    description: Put Method
+    body: 
+      application/json:
+        schema: |
+          {
+          }
+        example: |
+          {
+          }
+        
+  delete:
+    description: Delete
+    body: 
+      application/json:
+        schema: |
+          {
+          }
+        example: |
+          {
+          }
+ 
