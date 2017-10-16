@@ -1,0 +1,24 @@
+{
+  "properties": {
+    "Id": {
+      "description": "BookId to which order is to be assigned",
+      "type": "string",
+      "required":true
+    },
+    "Title": {
+      "description": "Book Title to which order is to be assigned",
+      "type": "string",
+      "required":true
+    },
+    "Author": {
+      "description": "Book Author to which order is to be assigned",
+      "type": "string",
+      "required":true
+    },
+    "Price": {
+      "description": "Book Price to which order is to be assigned",
+      "type": "string",
+      "required":true
+    }
+  }
+}
