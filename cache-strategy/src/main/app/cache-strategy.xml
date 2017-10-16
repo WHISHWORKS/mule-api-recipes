@@ -10,7 +10,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
     <http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
-    <db:mysql-config name="MySQL_Configuration" host="123.176.38.211" port="3306" user="apiuser1" password="apiwhish#369" database="apiproject" doc:name="MySQL Configuration"/>
+    <db:mysql-config name="MySQL_Configuration" host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.database}" doc:name="MySQL Configuration"/>
     <ee:object-store-caching-strategy name="Caching_Strategy" keyGenerationExpression="#[payload]" doc:name="Caching Strategy">
         <custom-object-store class="ww.caching.RedisCache"/>
     </ee:object-store-caching-strategy>

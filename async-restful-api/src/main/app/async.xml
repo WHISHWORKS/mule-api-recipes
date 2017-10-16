@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:json="http://www.mulesoft.org/schema/mule/json"
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:json="http://www.mulesoft.org/schema/mule/json"
 	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
 	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
@@ -8,7 +8,8 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
 http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
-http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
     <http:listener-config name="async-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
     <apikit:config name="async-config" raml="async.raml" consoleEnabled="false" doc:name="Router"/>
     <jms:activemq-connector name="Active_MQ" username="admin" password="admin" brokerURL="tcp://localhost:61616" validateConnections="true" doc:name="Active MQ"/>
@@ -27,59 +28,63 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
         <set-variable variableName="varId" value="#[message.inboundProperties.'http.uri.params'.id]" doc:name="Variable" />
         <db:select config-ref="MySQL_Configuration" doc:name="get Data from DB">
             <db:parameterized-query><![CDATA[SELECT counter FROM async_jms_msg WHERE id = #[flowVars.varId];]]></db:parameterized-query>
+
         </db:select>
 
         <choice doc:name="Choice">
             <when expression="#[payload[0].counter==0]">
-                <db:update config-ref="MySQL_Configuration" doc:name="Update stage 1">
-                    <db:parameterized-query><![CDATA[update async_jms_msg set counter=#[payload[0].counter] + 1, status='20% Completed' where id=#[flowVars.varId];]]></db:parameterized-query>
+                <async doc:name="Async">
+                	<expression-component doc:name="Expression"><![CDATA[
+					    Thread.sleep(30000);
+					]]></expression-component>
+                    <db:update config-ref="MySQL_Configuration" doc:name="In Progress">
+                        <db:parameterized-query><![CDATA[update async_jms_msg set counter= 1, status='Approval in progress' where id=#[flowVars.varId];]]></db:parameterized-query>
+                    </db:update>
+                    <db:select config-ref="MySQL_Configuration" doc:name="Getting Status 1">
+                        <db:parameterized-query><![CDATA[select id, status from async_jms_msg WHERE id = #[flowVars.varId];]]></db:parameterized-query>
+                    </db:select>
+                    <set-payload value="#[payload]" doc:name="Set Payload"/>
+                </async>
+                <db:update config-ref="MySQL_Configuration" doc:name="verification stage">
+                    <db:parameterized-query><![CDATA[update async_jms_msg set status='Verification started' where id=#[flowVars.varId];]]></db:parameterized-query>
                 </db:update>
-                <db:select config-ref="MySQL_Configuration" doc:name="Database">
+                <db:select config-ref="MySQL_Configuration" doc:name="Getting status">
                     <db:parameterized-query><![CDATA[select id, status from async_jms_msg WHERE id = #[flowVars.varId];]]></db:parameterized-query>
                 </db:select>
-                <set-payload value="#[payload]" doc:name="Set Payload" />
+                <set-payload value="#[payload]" doc:name="Set Payload"/>
+
             </when>
             <when expression="#[payload[0].counter==1]">
-                <db:update config-ref="MySQL_Configuration" doc:name="Update stage 2">
-                    <db:parameterized-query><![CDATA[update async_jms_msg set counter=#[payload[0].counter] + 1, status='40% Completed' where id=#[flowVars.varId];]]></db:parameterized-query>
-                </db:update>
-                <db:select config-ref="MySQL_Configuration" doc:name="Database">
+               <async doc:name="Async">
+                    <expression-component doc:name="Expression"><![CDATA[
+					    Thread.sleep(30000);
+					]]></expression-component>
+                    <db:update config-ref="MySQL_Configuration" doc:name="Final Update">
+                        <db:parameterized-query><![CDATA[update async_jms_msg set counter=#[payload[0].counter] + 1, status='Application Accepted' where id=#[flowVars.varId];]]></db:parameterized-query>
+                    </db:update>
+                     <db:select config-ref="MySQL_Configuration" doc:name="Getting Status 3">
+	                    <db:parameterized-query><![CDATA[select id, status from async_jms_msg WHERE id = #[flowVars.varId];]]></db:parameterized-query>
+	                </db:select>
+	                <set-payload value="#[payload]" doc:name="Set Payload"/>
+                </async>
+                <db:select config-ref="MySQL_Configuration" doc:name="Getting Status 2">
                     <db:parameterized-query><![CDATA[select id, status from async_jms_msg WHERE id = #[flowVars.varId];]]></db:parameterized-query>
                 </db:select>
-                <set-payload value="#[payload]" doc:name="Set Payload" />
+                <set-payload value="#[payload]" doc:name="Set Payload"/>
+
             </when>
-            <when expression="#[payload[0].counter==2]">
-                <db:update config-ref="MySQL_Configuration" doc:name="Update stage 3">
-                    <db:parameterized-query><![CDATA[update async_jms_msg set counter=#[payload[0].counter] + 1, status='60% Completed' where id=#[flowVars.varId];]]></db:parameterized-query>
-                </db:update>
-                <db:select config-ref="MySQL_Configuration" doc:name="Database">
+            <when expression="#[payload[0].counter&gt;1]">
+                <db:select config-ref="MySQL_Configuration" doc:name="Getting Status 4">
                     <db:parameterized-query><![CDATA[select id, status from async_jms_msg WHERE id = #[flowVars.varId];]]></db:parameterized-query>
                 </db:select>
-                <set-payload value="#[payload]" doc:name="Set Payload" />
+                <set-payload value="#[payload]" doc:name="Set Payload"/>
             </when>
-            <when expression="#[payload[0].counter==3]">
-                <db:update config-ref="MySQL_Configuration" doc:name="Update stage 4">
-                    <db:parameterized-query><![CDATA[update async_jms_msg set counter=#[payload[0].counter] + 1, status='80% Completed' where id=#[flowVars.varId];]]></db:parameterized-query>
-                </db:update>
-                <db:select config-ref="MySQL_Configuration" doc:name="Database">
-                    <db:parameterized-query><![CDATA[select id, status from async_jms_msg WHERE id = #[flowVars.varId];]]></db:parameterized-query>
-                </db:select>
-                <set-payload value="#[payload]" doc:name="Set Payload" />
-            </when>
-            <when expression="#[payload[0].counter&gt;3]">
-                <db:update config-ref="MySQL_Configuration" doc:name="Update stage last">
-                    <db:parameterized-query><![CDATA[update async_jms_msg set counter=#[payload[0].counter] + 1, status='100% Completed' where id=#[flowVars.varId];]]></db:parameterized-query>
-                </db:update>
-                <db:select config-ref="MySQL_Configuration" doc:name="Database">
-                    <db:parameterized-query><![CDATA[select id, status from async_jms_msg WHERE id = #[flowVars.varId];]]></db:parameterized-query>
-                </db:select>
-                <set-payload value="#[payload]" doc:name="Set Payload" />
-            </when>
+
         </choice>
     </flow>
     <flow name="post:/accounts:async-config">
         <set-payload value="#[payload]" doc:name="Set Payload" />
-        <set-variable variableName="uniqueId" value="#[function:uuid]" doc:name="unique id" />
+        <set-variable variableName="uniqueId" value="#[function:uuid]" doc:name="Unique Id" />
         <dw:transform-message metadata:id="a94c1353-f8e4-425e-87e5-636c26f77e41" doc:name="Transform Message">
             <dw:input-variable mimeType="application/java" variableName="uniqueId"/>
             <dw:set-payload><![CDATA[%dw 1.0
@@ -97,17 +102,17 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
         <object-to-string-transformer doc:name="Object to String" />
         <jms:outbound-endpoint queue="AccountQueue" connector-ref="Active_MQ" doc:name="JMS"/>
 
-        <logger message="after JMS**********#[payload]" level="INFO" doc:name="print data after jms" />
+        <logger message="Data received after JMS: #[payload]" level="INFO" doc:name="Print Data after JMS" />
         <set-payload value="{ Generated Id: #[flowVars.uniqueId], Status: Initiated}" doc:name="Set Payload" />
     </flow>
     <flow name="asyncFlow">
         <jms:inbound-endpoint queue="AccountQueue" connector-ref="Active_MQ" doc:name="Reading message from JMS"/>
 
         <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to Object" />
-        <db:insert config-ref="MySQL_Configuration" doc:name="Insert into database">
+        <db:insert config-ref="MySQL_Configuration" doc:name="Insert into Database">
             <db:parameterized-query><![CDATA[insert into async_jms_msg (id, name, Type, Address) VALUES (#[payload.id],#[payload.name],#[payload.Type],#[payload.Address])]]></db:parameterized-query>
         </db:insert>
-        <logger message="after database******************#[payload]" level="INFO" doc:name="Insertion status" />
+        <logger message="After Insertion: #[payload]" level="INFO" doc:name="Insertion Status" />
     </flow>
 	
     <apikit:mapping-exception-strategy name="async-apiKitGlobalExceptionMapping">
